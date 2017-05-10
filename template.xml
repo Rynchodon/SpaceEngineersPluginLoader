@@ -1,0 +1,34 @@
+﻿<PluginBuilder xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/Rynchodon.PluginLoader">
+  <allBuilds>false</allBuilds>
+  <author>Author</author>
+  <files>
+    <PluginBuilder.File>
+      <requires xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:nil="true" />
+      <source>\Path\To\LoadFirst.dll</source>
+      <targetFolder i:nil="true" />
+    </PluginBuilder.File>
+    <PluginBuilder.File>
+      <requires xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <d4p1:string>LoadFirst.dll</d4p1:string>
+      </requires>
+      <source>\Path\To\LoadSecond.dll</source>
+      <targetFolder i:nil="true" />
+    </PluginBuilder.File>
+  </files>
+  <pathToGitExe i:nil="true" />
+  <release>false</release>
+  <repo>Repo</repo>
+  <requires>
+    <PluginName>
+      <author>OtherAuthor</author>
+      <repository>OtherRepo</repository>
+    </PluginName>
+  </requires>
+  <version>
+    <Build>0</Build>
+    <Major>0</Major>
+    <Minor>0</Minor>
+    <Revision>0</Revision>
+    <SeVersion>0</SeVersion>
+  </version>
+</PluginBuilder>

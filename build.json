@@ -1,0 +1,32 @@
+{
+  "allBuilds": true,
+  "author": "Rynchodon",
+  "files": [
+    {
+      "requires": null,
+      "source": "PluginLoader\\bin\\x64\\Release\\PluginLoader.dll",
+      "targetFolder": null
+    },
+    {
+      "requires": null,
+      "source": "PluginManager\\bin\\x64\\Release\\PluginManager.exe",
+      "targetFolder": null
+    },
+    {
+      "requires": null,
+      "source": "License.rtf",
+      "targetFolder": null
+    }
+  ],
+  "pathToGitExe": "C:\\Program Files (x86)\\Git\\bin\\git.exe",
+  "release": false,
+  "repo": "SpaceEngineersPluginLoader",
+  "requires": null,
+  "version": {
+    "Build": 0,
+    "Major": 0,
+    "Minor": 0,
+    "Revision": 0,
+    "SeVersion": 0
+  }
+}

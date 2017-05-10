@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="Space Engineers Plugin Loader" Language="1033" Version="!(bind.FileVersion.PluginManager.exe)" Manufacturer="Rynchodon" UpgradeCode="C1ACEBD7-FCA4-441C-91C8-F572E3CBC789">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+
+		<MajorUpgrade AllowSameVersionUpgrades="yes" AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+		<!-- How to package files -->
+		<Media Id="1" Cabinet="SpaceEngineersPluginLoader.cab" EmbedCab="yes" />
+
+		<!-- Get SE_DIRECTORY from registry -->
+		<Property Id="SE_DIRECTORY">
+			<RegistrySearch Id="RegistrySearch_SpaceEngineers" Type="directory" Root="HKLM" Key="Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850" Name="InstallLocation" />
+		</Property>
+
+		<!-- GUI -->
+		<Property Id="WIXUI_INSTALLDIR" Value="SE_DIRECTORY" />
+		<WixVariable Id="WixUILicenseRtf" Value="..\License.rtf" />
+		<UI>
+			<UIRef Id="WixUI_InstallDir" />
+			<Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">
+				WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+			</Publish>
+		</UI>
+
+		<!-- Launch After Close -->
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Plugin Manager after closing setup" />
+		<Property Id="WixShellExecTarget" Value="[#PluginManager.exe]" />
+		<CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+		<!-- Do Install -->
+		<Feature Id="CompleteInstall" Level="1">
+			<ComponentRef Id="PluginManagerComponent" />
+			<ComponentRef Id="PluginLoaderComponent" />
+			<ComponentRef Id="DS_PluginManagerComponent" />
+			<ComponentRef Id="DS_PluginLoaderComponent" />
+		</Feature>
+	</Product>
+
+	<!-- SE_DIRECTORY if missing from registry -->
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder" Name="Games">
+				<Directory Id="SteamDir" Name="Steam">
+					<Directory Id="SteamAppsDir" Name="SteamApps">
+						<Directory Id="commonDir" Name="common">
+							<Directory Id="SE_DIRECTORY" Name="SpaceEngineers" />
+						</Directory>
+					</Directory>
+				</Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<!-- Paths for Install & Remove -->
+	<Fragment>
+		<DirectoryRef Id="SE_DIRECTORY">
+			<!-- Bin64 -->
+			<Directory Id="SE_BIN" Name="Bin64">
+				<Component Id="PluginManagerComponent" Win64="yes">
+					<File Source="$(var.PluginManager.TargetPath)" />
+				</Component>
+				<Component Id="PluginLoaderComponent" Win64="yes">
+					<File Source="$(var.PluginLoader.TargetPath)" />
+				</Component>
+			</Directory>
+
+			<!-- DedicatedServer64 -->
+			<Directory Id="SE_DS_BIN" Name="DedicatedServer64">
+				<Component Id="DS_PluginManagerComponent" Win64="yes">
+					<File Id="DsManFile" Source="$(var.PluginManager.TargetPath)" />
+				</Component>
+				<Component Id="DS_PluginLoaderComponent" Win64="yes">
+					<File Id="DsLoadFile" Source="$(var.PluginLoader.TargetPath)" />
+				</Component>
+			</Directory>
+		</DirectoryRef>
+	</Fragment>
+</Wix>
