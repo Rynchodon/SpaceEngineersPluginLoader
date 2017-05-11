@@ -226,10 +226,9 @@ namespace Rynchodon.PluginLoader
 			Logger.WriteLine("starting robocopy");
 
 			string first = '"' + seplDownloadPath + "\" \"";
-			string second = "\" " + Dll + " " + Exe + " /copyall /W:1 /xx";
 
-			string toBin64 = first + bin64 + second;
-			string toDed64 = first + ded64 + second;
+			string toBin64 = first + bin64 + "\" " + Dll + " " + Exe + " /copyall /W:1 /xx";
+			string toDed64 = first + ded64 + "\" " + Dll + " /copyall /W:1 /xx";
 
 			Process robocopy = new Process();
 			robocopy.StartInfo.FileName = "cmd.exe";
