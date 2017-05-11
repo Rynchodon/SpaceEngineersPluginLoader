@@ -135,14 +135,14 @@ namespace Rynchodon.PluginLoader
 		/// <summary>
 		/// Invoked after all files are downloaded to add data from manifest and ensure there are no orphan or missing files.
 		/// </summary>
-		/// <returns>True iff manifest was loaded without error.</returns>
+		/// <returns>True if manifest was loaded without error or manifest does not exist. False otherwise.</returns>
 		public bool LoadManifest()
 		{
 			string manifestPath = PathExtensions.Combine(directory, Manifest.fileName);
 			if (!File.Exists(manifestPath))
 			{
-				Logger.WriteLine("ERROR: " + name.fullName + " has no manifest.");
-				return false;
+				Logger.WriteLine("WARNING: " + name.fullName + " has no manifest.");
+				return true;
 			}
 			Manifest manifest; Serialization.ReadJson(manifestPath, out manifest);
 			requiredPlugins = manifest.requiredPlugins;
