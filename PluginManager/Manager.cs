@@ -7,6 +7,8 @@ namespace Rynchodon.PluginManager
 {
 	internal class Manager : Form
 	{
+		private enum Status { Failed, Malformed, Searching, Success }
+
 		private readonly Loader _loader = new Loader(false);
 		private readonly List<string> _errors = new List<string>();
 
@@ -35,6 +37,7 @@ namespace Rynchodon.PluginManager
 				newRow.Cells[ColumnAuthor.Index].Value = config.name.author;
 				newRow.Cells[ColumnRepo.Index].Value = config.name.repository;
 				newRow.Cells[ColumnPreRelease.Index].Value = config.downloadPrerelease;
+				CheckRow(newRow.Index);
 			}
 
 			PluginConfig.CellEndEdit += PluginConfig_CellEndEdit;
@@ -44,6 +47,7 @@ namespace Rynchodon.PluginManager
 		private void PluginConfig_CellEndEdit(object sender, DataGridViewCellEventArgs e)
 		{
 			_needsSave = true;
+			CheckRow(e.RowIndex);
 		}
 
 		private void PluginConfig_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
@@ -59,7 +63,7 @@ namespace Rynchodon.PluginManager
 				switch (choice)
 				{
 					case DialogResult.Yes:
-						SavePluginConfig(false);
+						SavePluginConfig();
 						break;
 					case DialogResult.No:
 						break;
@@ -68,11 +72,76 @@ namespace Rynchodon.PluginManager
 			base.OnClosed(e);
 		}
 
-		private void SavePluginConfig(bool checkForRepo)
+		private void CheckRow(int rowIndex)
+		{
+			SetStatus(rowIndex, Status.Searching);
+
+			DataGridViewRow row = PluginConfig.Rows[rowIndex];
+
+			PluginConfig info = new PluginConfig(
+					new PluginName((string)row.Cells[ColumnAuthor.Index].EditedFormattedValue,
+					(string)row.Cells[ColumnRepo.Index].EditedFormattedValue),
+					(bool)row.Cells[ColumnPreRelease.Index].EditedFormattedValue,
+					(bool)row.Cells[ColumnEnabled.Index].EditedFormattedValue);
+
+			bool noAuthor = string.IsNullOrWhiteSpace(info.name.author);
+			bool noRepo = string.IsNullOrWhiteSpace(info.name.repository);
+			if (noAuthor && noRepo)
+			{
+				SetStatus(rowIndex, Status.Malformed);
+				return;
+			}
+
+			if (noAuthor)
+			{
+				WriteLine("ERROR: No author for " + info.name.repository);
+				SetStatus(rowIndex, Status.Malformed);
+				return;
+			}
+
+			if (noRepo)
+			{
+				WriteLine("ERROR: No repo for " + info.name.author);
+				SetStatus(rowIndex, Status.Malformed);
+				return;
+			}
+
+			if ((new GitHubClient(info.name)).GetReleases() != null)
+			{
+				WriteLine("Connect to " + info.name.fullName);
+				SetStatus(rowIndex, Status.Success);
+			}
+			else
+			{
+				WriteLine("WARNING: Failed to connect to " + info.name.fullName);
+				SetStatus(rowIndex, Status.Failed);
+			}
+		}
+
+		private void SetStatus(int rowIndex, Status s)
+		{
+			DataGridViewCell imageCell = PluginConfig.Rows[rowIndex].Cells[ColumnStatus.Index];
+			switch (s)
+			{
+				case Status.Failed:
+					imageCell.Value = Properties.Resources.warning;
+					break;
+				case Status.Malformed:
+					imageCell.Value = Properties.Resources.failed;
+					break;
+				case Status.Searching:
+					imageCell.Value = Properties.Resources.search;
+					break;
+				case Status.Success:
+					imageCell.Value = Properties.Resources.check;
+					break;
+			}
+		}
+
+		private void SavePluginConfig()
 		{
 			_needsSave = false;
 			List<PluginConfig> pluginConfigs = new List<PluginConfig>();
-			List<GitHubClient> checkRepo = new List<GitHubClient>();
 
 			foreach (DataGridViewRow row in PluginConfig.Rows)
 			{
@@ -82,36 +151,13 @@ namespace Rynchodon.PluginManager
 					(bool)row.Cells[ColumnPreRelease.Index].EditedFormattedValue,
 					(bool)row.Cells[ColumnEnabled.Index].EditedFormattedValue);
 
-				bool noAuthor = string.IsNullOrWhiteSpace(info.name.author);
-				bool noRepo = string.IsNullOrWhiteSpace(info.name.repository);
-				if (noAuthor && noRepo)
+				if (string.IsNullOrWhiteSpace(info.name.author) || string.IsNullOrWhiteSpace(info.name.repository))
 					continue;
-
-				if (noAuthor)
-				{
-					WriteLine("ERROR: No author for " + info.name.repository);
-					continue;
-				}
-
-				if (noRepo)
-				{
-					WriteLine("ERROR: No repo for " + info.name.author);
-					continue;
-				}
 
 				pluginConfigs.Add(info);
-				if (checkForRepo)
-					checkRepo.Add(new GitHubClient(info.name));
 			}
 
 			_loader.GitHubConfig = pluginConfigs;
-
-			if (checkForRepo)
-				foreach (GitHubClient client in checkRepo)
-					if (client.GetReleases() != null)
-						WriteLine("Connected to " + client.name);
-					else
-						WriteLine("WARNING: Failed to connect to " + client.name);
 		}
 
 		private void WriteLine(string line)
@@ -255,6 +301,7 @@ namespace Rynchodon.PluginManager
 			// 
 			this.ColumnStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
 			this.ColumnStatus.HeaderText = "Status";
+			this.ColumnStatus.Image = global::Rynchodon.PluginManager.Properties.Resources.failed;
 			this.ColumnStatus.Name = "ColumnStatus";
 			this.ColumnStatus.ReadOnly = true;
 			this.ColumnStatus.Width = 43;
@@ -283,7 +330,7 @@ namespace Rynchodon.PluginManager
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			SavePluginConfig(true);
+			SavePluginConfig();
 		}
 
 		private void buttonHelp_Click(object sender, EventArgs e)
