@@ -67,7 +67,7 @@ namespace Rynchodon.PluginLoader
 		{
 			string fullPath = Path.GetFullPath(Path.Combine(directory, filePath)); // need filePath if it is rooted
 			if (fullPath.StartsWith(directory))
-				return fullPath.Substring(directory.Length);
+				return fullPath.Substring(directory.Length + 1);
 			throw new ArgumentException(filePath + " is not in plugin's directory");
 		}
 
@@ -259,13 +259,17 @@ namespace Rynchodon.PluginLoader
 			Logger.WriteLine("ERROR: Failed to load " + fullPath + ", " + reason);
 		}
 
+		[DataContract]
 		private struct Manifest
 		{
 			/// <summary>Name of file to include in release assets.</summary>
 			public const string fileName = "Manifest.json";
 
+			[DataMember]
 			public string[] files;
+			[DataMember]
 			public string[][] fileRequirements;
+			[DataMember]
 			public PluginName[] requiredPlugins;
 
 			public Manifest(string[] files, string[][] fileRequirements, PluginName[] requiredPlugins)
