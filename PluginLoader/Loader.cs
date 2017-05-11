@@ -289,7 +289,7 @@ namespace Rynchodon.PluginLoader
 			_downProgress.Current = 0;
 
 			Logger.WriteLine("Updating plugins");
-			UpdatePlugin(_data.GitHubConfig);
+			UpdatePlugin(_data.EnabledGitHubConfig());
 		}
 
 		private void UpdatePlugin(IEnumerable<PluginConfig> pluginConfig)
@@ -338,7 +338,7 @@ namespace Rynchodon.PluginLoader
 			List<IPlugin> pluginInterface = new List<IPlugin>();
 			HashSet<PluginName> loaded = new HashSet<PluginName>();
 
-			foreach (PluginConfig config in _data.GitHubConfig)
+			foreach (PluginConfig config in _data.EnabledGitHubConfig())
 				if (_data.TryGetDownloaded(config.name, out plugin))
 					LoadPlugin(plugin, pluginInterface, loaded);
 
@@ -404,6 +404,7 @@ namespace Rynchodon.PluginLoader
 					throw new Exception(Path.GetFullPath(fileDestination) + " is outside of plugin's directory");
 
 				Logger.WriteLine("Copy: " + fileSource.source + " to " + fileDestination);
+				Directory.CreateDirectory(Path.GetDirectoryName(fileDestination));
 				File.Copy(fileSource.source, fileDestination, true);
 				plugin.AddFile(fileDestination, fileSource.requires);
 			}

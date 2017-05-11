@@ -15,23 +15,38 @@ namespace Rynchodon.PluginManager
 		private DataGridView PluginConfig;
 		private Button buttonSave;
 		private TextBox textBoxOutput;
-		private DataGridViewTextBoxColumn ColumnAuthor;
-		private DataGridViewTextBoxColumn ColumnRepo;
-		private DataGridViewCheckBoxColumn ColumnPreRelease;
 		private Button buttonHelp;
 		private Button Launch;
 		private Button buttonLaunchDs;
+		private DataGridViewCheckBoxColumn ColumnEnabled;
+		private DataGridViewTextBoxColumn ColumnAuthor;
+		private DataGridViewTextBoxColumn ColumnRepo;
+		private DataGridViewCheckBoxColumn ColumnPreRelease;
+		private DataGridViewImageColumn ColumnStatus;
 		private Help help;
 
 		public Manager()
 		{
 			InitializeComponent();
 			foreach (PluginConfig config in _loader.GitHubConfig)
-				PluginConfig.Rows.Add(config.name.author, config.name.repository, config.downloadPrerelease);
+			{
+				DataGridViewRow newRow = PluginConfig.Rows[PluginConfig.Rows.Add()];
+				newRow.Cells[ColumnEnabled.Index].Value = config.enabled;
+				newRow.Cells[ColumnAuthor.Index].Value = config.name.author;
+				newRow.Cells[ColumnRepo.Index].Value = config.name.repository;
+				newRow.Cells[ColumnPreRelease.Index].Value = config.downloadPrerelease;
+			}
+
 			PluginConfig.CellEndEdit += PluginConfig_CellEndEdit;
+			PluginConfig.UserDeletedRow += PluginConfig_UserDeletedRow;
 		}
 
 		private void PluginConfig_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+		{
+			_needsSave = true;
+		}
+
+		private void PluginConfig_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
 		{
 			_needsSave = true;
 		}
@@ -62,9 +77,10 @@ namespace Rynchodon.PluginManager
 			foreach (DataGridViewRow row in PluginConfig.Rows)
 			{
 				PluginConfig info = new PluginConfig(
-					new PluginName((string)row.Cells[0].EditedFormattedValue,
-					(string)row.Cells[1].EditedFormattedValue),
-					(bool)row.Cells[2].EditedFormattedValue);
+					new PluginName((string)row.Cells[ColumnAuthor.Index].EditedFormattedValue,
+					(string)row.Cells[ColumnRepo.Index].EditedFormattedValue),
+					(bool)row.Cells[ColumnPreRelease.Index].EditedFormattedValue,
+					(bool)row.Cells[ColumnEnabled.Index].EditedFormattedValue);
 
 				bool noAuthor = string.IsNullOrWhiteSpace(info.name.author);
 				bool noRepo = string.IsNullOrWhiteSpace(info.name.repository);
@@ -92,7 +108,9 @@ namespace Rynchodon.PluginManager
 
 			if (checkForRepo)
 				foreach (GitHubClient client in checkRepo)
-					if (client.GetReleases() == null)
+					if (client.GetReleases() != null)
+						WriteLine("Connected to " + client.name);
+					else
 						WriteLine("WARNING: Failed to connect to " + client.name);
 		}
 
@@ -118,20 +136,22 @@ namespace Rynchodon.PluginManager
 		{
 			this.Launch = new System.Windows.Forms.Button();
 			this.PluginConfig = new System.Windows.Forms.DataGridView();
-			this.ColumnAuthor = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.ColumnRepo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.ColumnPreRelease = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.buttonSave = new System.Windows.Forms.Button();
 			this.textBoxOutput = new System.Windows.Forms.TextBox();
 			this.buttonHelp = new System.Windows.Forms.Button();
 			this.buttonLaunchDs = new System.Windows.Forms.Button();
+			this.ColumnEnabled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			this.ColumnAuthor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.ColumnRepo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.ColumnPreRelease = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			this.ColumnStatus = new System.Windows.Forms.DataGridViewImageColumn();
 			((System.ComponentModel.ISupportInitialize)(this.PluginConfig)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// Launch
 			// 
 			this.Launch.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.Launch.Location = new System.Drawing.Point(12, 236);
+			this.Launch.Location = new System.Drawing.Point(250, 197);
 			this.Launch.Name = "Launch";
 			this.Launch.Size = new System.Drawing.Size(160, 23);
 			this.Launch.TabIndex = 0;
@@ -146,13 +166,66 @@ namespace Rynchodon.PluginManager
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.PluginConfig.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.PluginConfig.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColumnEnabled,
             this.ColumnAuthor,
             this.ColumnRepo,
-            this.ColumnPreRelease});
+            this.ColumnPreRelease,
+            this.ColumnStatus});
 			this.PluginConfig.Location = new System.Drawing.Point(12, 12);
 			this.PluginConfig.Name = "PluginConfig";
-			this.PluginConfig.Size = new System.Drawing.Size(360, 189);
+			this.PluginConfig.Size = new System.Drawing.Size(463, 179);
 			this.PluginConfig.TabIndex = 2;
+			// 
+			// buttonSave
+			// 
+			this.buttonSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.buttonSave.Location = new System.Drawing.Point(87, 197);
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.Size = new System.Drawing.Size(76, 23);
+			this.buttonSave.TabIndex = 3;
+			this.buttonSave.Text = "Save";
+			this.buttonSave.UseVisualStyleBackColor = true;
+			this.buttonSave.Click += new System.EventHandler(this.button1_Click);
+			// 
+			// textBoxOutput
+			// 
+			this.textBoxOutput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxOutput.Location = new System.Drawing.Point(12, 276);
+			this.textBoxOutput.Multiline = true;
+			this.textBoxOutput.Name = "textBoxOutput";
+			this.textBoxOutput.ReadOnly = true;
+			this.textBoxOutput.Size = new System.Drawing.Size(463, 100);
+			this.textBoxOutput.TabIndex = 4;
+			this.textBoxOutput.WordWrap = false;
+			// 
+			// buttonHelp
+			// 
+			this.buttonHelp.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.buttonHelp.Location = new System.Drawing.Point(87, 226);
+			this.buttonHelp.Name = "buttonHelp";
+			this.buttonHelp.Size = new System.Drawing.Size(76, 23);
+			this.buttonHelp.TabIndex = 5;
+			this.buttonHelp.Text = "Help";
+			this.buttonHelp.UseVisualStyleBackColor = true;
+			this.buttonHelp.Click += new System.EventHandler(this.buttonHelp_Click);
+			// 
+			// buttonLaunchDs
+			// 
+			this.buttonLaunchDs.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.buttonLaunchDs.Location = new System.Drawing.Point(231, 226);
+			this.buttonLaunchDs.Name = "buttonLaunchDs";
+			this.buttonLaunchDs.Size = new System.Drawing.Size(192, 23);
+			this.buttonLaunchDs.TabIndex = 6;
+			this.buttonLaunchDs.Text = "Launch DS and SEPL";
+			this.buttonLaunchDs.UseVisualStyleBackColor = true;
+			// 
+			// ColumnEnabled
+			// 
+			this.ColumnEnabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+			this.ColumnEnabled.HeaderText = "Enabled";
+			this.ColumnEnabled.Name = "ColumnEnabled";
+			this.ColumnEnabled.Width = 52;
 			// 
 			// ColumnAuthor
 			// 
@@ -178,53 +251,17 @@ namespace Rynchodon.PluginManager
 			this.ColumnPreRelease.ToolTipText = "When enabled, SEPL will download pre-releases of the plugin.";
 			this.ColumnPreRelease.Width = 71;
 			// 
-			// buttonSave
+			// ColumnStatus
 			// 
-			this.buttonSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.buttonSave.Location = new System.Drawing.Point(62, 207);
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.Size = new System.Drawing.Size(76, 23);
-			this.buttonSave.TabIndex = 3;
-			this.buttonSave.Text = "Save";
-			this.buttonSave.UseVisualStyleBackColor = true;
-			this.buttonSave.Click += new System.EventHandler(this.button1_Click);
-			// 
-			// textBoxOutput
-			// 
-			this.textBoxOutput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxOutput.Location = new System.Drawing.Point(12, 286);
-			this.textBoxOutput.Multiline = true;
-			this.textBoxOutput.Name = "textBoxOutput";
-			this.textBoxOutput.ReadOnly = true;
-			this.textBoxOutput.Size = new System.Drawing.Size(360, 100);
-			this.textBoxOutput.TabIndex = 4;
-			this.textBoxOutput.WordWrap = false;
-			// 
-			// buttonHelp
-			// 
-			this.buttonHelp.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.buttonHelp.Location = new System.Drawing.Point(246, 207);
-			this.buttonHelp.Name = "buttonHelp";
-			this.buttonHelp.Size = new System.Drawing.Size(76, 23);
-			this.buttonHelp.TabIndex = 5;
-			this.buttonHelp.Text = "Help";
-			this.buttonHelp.UseVisualStyleBackColor = true;
-			this.buttonHelp.Click += new System.EventHandler(this.buttonHelp_Click);
-			// 
-			// buttonLaunchDs
-			// 
-			this.buttonLaunchDs.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.buttonLaunchDs.Location = new System.Drawing.Point(180, 236);
-			this.buttonLaunchDs.Name = "buttonLaunchDs";
-			this.buttonLaunchDs.Size = new System.Drawing.Size(192, 23);
-			this.buttonLaunchDs.TabIndex = 6;
-			this.buttonLaunchDs.Text = "Launch DS and SEPL";
-			this.buttonLaunchDs.UseVisualStyleBackColor = true;
+			this.ColumnStatus.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+			this.ColumnStatus.HeaderText = "Status";
+			this.ColumnStatus.Name = "ColumnStatus";
+			this.ColumnStatus.ReadOnly = true;
+			this.ColumnStatus.Width = 43;
 			// 
 			// Manager
 			// 
-			this.ClientSize = new System.Drawing.Size(384, 398);
+			this.ClientSize = new System.Drawing.Size(487, 388);
 			this.Controls.Add(this.buttonLaunchDs);
 			this.Controls.Add(this.buttonHelp);
 			this.Controls.Add(this.textBoxOutput);

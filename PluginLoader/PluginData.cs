@@ -32,6 +32,9 @@ namespace Rynchodon.PluginLoader
 
 		private bool _needsSave = false;
 
+		/// <summary>
+		/// Configuration for GitHub plugins.
+		/// </summary>
 		public ICollection<PluginConfig> GitHubConfig
 		{
 			get { return _gitHubConfig.Values; }
@@ -42,6 +45,17 @@ namespace Rynchodon.PluginLoader
 					AddConfig(config);
 				_needsSave = true;
 			}
+		}
+
+		/// <summary>
+		/// Configuration for GitHub plugins that have enabled = true.
+		/// </summary>
+		/// <returns>GitHub plugins that have enabled = true.</returns>
+		public IEnumerable<PluginConfig> EnabledGitHubConfig()
+		{
+			foreach (PluginConfig config in _gitHubConfig.Values)
+				if (config.enabled)
+					yield return config;
 		}
 
 		public PluginData(string directory)

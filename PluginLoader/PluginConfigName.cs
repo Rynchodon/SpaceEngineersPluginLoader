@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace Rynchodon.PluginLoader
@@ -10,11 +11,14 @@ namespace Rynchodon.PluginLoader
 		public PluginName name;
 		[DataMember]
 		public bool downloadPrerelease;
+		[DataMember]
+		public bool enabled;
 
-		public PluginConfig(PluginName name, bool downloadPrerelease)
+		public PluginConfig(PluginName name, bool downloadPrerelease, bool enabled = true)
 		{
 			this.name = name;
 			this.downloadPrerelease = downloadPrerelease;
+			this.enabled = enabled;
 		}
 	}
 
