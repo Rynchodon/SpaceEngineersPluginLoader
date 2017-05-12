@@ -137,7 +137,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Games\Steam\SteamApps\common\SpaceEngineers\Bin64\PluginManager.exe" "$(SolutionDir)build.json"</PostBuildEvent>
+    <PostBuildEvent>"C:\Games\Steam\SteamApps\common\SpaceEngineers\SpaceEngineersPluginLoader\PluginManager.exe" "$(SolutionDir)build.json"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

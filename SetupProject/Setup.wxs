@@ -33,7 +33,6 @@
 		<Feature Id="CompleteInstall" Level="1">
 			<ComponentRef Id="PluginManagerComponent" />
 			<ComponentRef Id="PluginLoaderComponent" />
-			<ComponentRef Id="DS_PluginLoaderComponent" />
 			<ComponentRef Id="AppDesktopShortcutComponent" />
 			<ComponentRef Id="AppStartMenuShortcutComponent" />
 		</Feature>
@@ -59,7 +58,7 @@
 		<DirectoryRef Id="TARGETDIR">
 			<Directory Id="DesktopFolder" Name="Desktop">
 				<Component Id="AppDesktopShortcutComponent">
-					<Shortcut Id="AppDesktopShortcut" Name="Plugin Manager" Target="[#PluginManager.exe]" WorkingDirectory="SE_BIN" />
+					<Shortcut Id="AppDesktopShortcut" Name="Plugin Manager" Target="[#PluginManager.exe]" WorkingDirectory="SpaceEngineersPluginLoader" />
 					<RegistryValue Root="HKCU" Key="Software\Microsoft\[ProductName]" Name="desktop shortcut" Type="binary" Value="1" KeyPath="yes" />
 				</Component>
 			</Directory>
@@ -72,7 +71,7 @@
 			<Directory Id ="ProgramMenuFolder">
 				<Directory Id="AppProgramsFolder" Name="Space Engineers Plugin Loader">
 					<Component Id="AppStartMenuShortcutComponent">
-						<Shortcut Id="AppStartMenuShortcut" Name="Plugin Manager" Target="[#PluginManager.exe]" WorkingDirectory="SE_BIN" />
+						<Shortcut Id="AppStartMenuShortcut" Name="Plugin Manager" Target="[#PluginManager.exe]" WorkingDirectory="SpaceEngineersPluginLoader" />
 						<RemoveFolder Id="CleanupStartMenuShortcut" Directory="AppProgramsFolder" On="uninstall" />
 						<RegistryValue Root="HKCU" Key="Software\Microsoft\[ProductName]" Name="start menu shortcut" Type="binary" Value="1" KeyPath="yes" />
 					</Component>
@@ -84,20 +83,14 @@
 	<!-- Paths for install -->
 	<Fragment>
 		<DirectoryRef Id="SE_DIRECTORY">
-			<!-- Bin64 -->
-			<Directory Id="SE_BIN" Name="Bin64">
+			<Directory Id="SpaceEngineersPluginLoader" Name="SpaceEngineersPluginLoader">
 				<Component Id="PluginManagerComponent" Win64="yes">
 					<File Source="$(var.PluginManager.TargetPath)" />
 				</Component>
+			</Directory>
+			<Directory Id ="Bin64" Name="Bin64">
 				<Component Id="PluginLoaderComponent" Win64="yes">
 					<File Source="$(var.PluginLoader.TargetPath)" />
-				</Component>
-			</Directory>
-
-			<!-- DedicatedServer64 -->
-			<Directory Id="SE_DS_BIN" Name="DedicatedServer64">
-				<Component Id="DS_PluginLoaderComponent" Win64="yes">
-					<File Id="DsLoadFile" Source="$(var.PluginLoader.TargetPath)" />
 				</Component>
 			</Directory>
 		</DirectoryRef>

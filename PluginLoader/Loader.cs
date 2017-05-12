@@ -240,9 +240,6 @@ namespace Rynchodon.PluginLoader
 
 			PluginName seplName = new PluginName("Rynchodon", SeplRepo);
 			string seplDownloadPath = PathExtensions.Combine(_directory, "plugin", seplName.fullName);
-			string spaceEngineersPath = Path.GetDirectoryName(_directory);
-			string bin64 = PathExtensions.Combine(spaceEngineersPath, "Bin64");
-			string ded64 = PathExtensions.Combine(spaceEngineersPath, "DedicatedServer64");
 
 			string license = PathExtensions.Combine(seplDownloadPath, "License.rtf");
 			if (File.Exists(license))
@@ -251,13 +248,14 @@ namespace Rynchodon.PluginLoader
 			Logger.WriteLine("starting robocopy");
 
 			string first = '"' + seplDownloadPath + "\" \"";
+			string bin64 = PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64");
 
-			string toBin64 = first + bin64 + "\" " + Dll + " " + Exe + " /copyall /W:1 /xx";
-			string toDed64 = first + ded64 + "\" " + Dll + " /copyall /W:1 /xx";
+			string copyDll = first + bin64 + "\" " + Dll + " /copyall /W:1 /xx";
+			string copyExe = first + _directory + "\" " + Exe + " /copyall /W:1 /xx";
 
 			Process robocopy = new Process();
 			robocopy.StartInfo.FileName = "cmd.exe";
-			robocopy.StartInfo.Arguments = "/C robocopy " + toBin64 + " & robocopy " + toDed64;
+			robocopy.StartInfo.Arguments = "/C robocopy " + copyDll + " & robocopy " + copyExe;
 			robocopy.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 			robocopy.Start();
 		}

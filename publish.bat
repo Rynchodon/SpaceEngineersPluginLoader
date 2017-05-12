@@ -1,1 +1,1 @@
-"C:\Games\Steam\SteamApps\common\SpaceEngineers\Bin64\PluginManager.exe" build.json publish=true
+"C:\Games\Steam\SteamApps\common\SpaceEngineers\SpaceEngineersPluginLoader\PluginManager.exe" build.json publish=true

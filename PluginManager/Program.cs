@@ -8,6 +8,8 @@ namespace Rynchodon.PluginManager
 {
 	public static class Program
 	{
+		private static string _bin64, _dedicated64;
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -16,6 +18,13 @@ namespace Rynchodon.PluginManager
 		{
 			try
 			{
+				string seDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
+				_bin64 = Path.Combine(seDirectory, "Bin64");
+				_dedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
+
+				AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
 				if (args != null && args.Length != 0)
 				{
 					if (args[0].Equals("--CreateTemplates", StringComparison.CurrentCultureIgnoreCase))
@@ -35,6 +44,50 @@ namespace Rynchodon.PluginManager
 				Console.ReadKey();
 				throw;
 			}
+		}
+
+		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			Assembly assembly;
+			if (TryResolveAssembly(_bin64, args, out assembly) || TryResolveAssembly(_dedicated64, args, out assembly))
+				return assembly;
+			return null;
+		}
+
+		private static bool TryResolveAssembly(string directory, ResolveEventArgs args, out Assembly assembly)
+		{
+			if (directory == null)
+			{
+				assembly = null;
+				return false;
+			}
+
+			AssemblyName name = new AssemblyName(args.Name);
+			string assemblyPath = Path.Combine(directory, name.Name);
+
+			string dll = assemblyPath + ".dll";
+			if (File.Exists(dll))
+				assemblyPath = dll;
+			else
+			{
+				string exe = assemblyPath + ".exe";
+				if (File.Exists(exe))
+					assemblyPath = exe;
+				else
+				{
+					assembly = null;
+					return false;
+				}
+			}
+
+			if (args.Name == AssemblyName.GetAssemblyName(assemblyPath).FullName)
+			{
+				assembly = Assembly.LoadFrom(assemblyPath);
+				return true;
+			}
+
+			assembly = null;
+			return false;
 		}
 
 		private static void CreateTemplates()
