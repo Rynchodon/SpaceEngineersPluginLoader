@@ -32,6 +32,8 @@ namespace Rynchodon.PluginLoader
 
 		private bool _needsSave = false;
 
+		public string PathToGit;
+
 		/// <summary>
 		/// Configuration for GitHub plugins.
 		/// </summary>
@@ -156,6 +158,36 @@ namespace Rynchodon.PluginLoader
 					else
 						_downloaded.Add(plugin.name, plugin);
 			}
+
+			PathToGit = set.PathToGit;
+
+			if (PathToGit == null)
+				PathToGit = SearchForGit();
+		}
+
+		private string SearchForGit()
+		{
+			List<string> searchLocations = new List<string>();
+
+			foreach (string envPath in Environment.GetEnvironmentVariable("PATH").Split(';'))
+				searchLocations.Add(envPath);
+
+			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "Git", "cmd"));
+			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "Git", "bin"));
+			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramW6432"), "Git", "cmd"));
+			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramW6432"), "Git", "bin"));
+
+			foreach (string location in searchLocations)
+			{
+				string gitExe = PathExtensions.Combine(location, "git.exe");
+				if (File.Exists(gitExe))
+				{
+					_needsSave = true;
+					Logger.WriteLine("git @ " + gitExe);
+					return gitExe;
+				}
+			}
+			return null;
 		}
 
 		public void Save(bool force = false)
@@ -168,6 +200,7 @@ namespace Rynchodon.PluginLoader
 			Settings set;
 			set.Downloaded = _downloaded.Values.ToArray();
 			set.GitHubConfig = _gitHubConfig.Values.ToArray();
+			set.PathToGit = PathToGit;
 			FileInfo fileInfo = new FileInfo(filePath);
 			if (File.Exists(filePath))
 				fileInfo.IsReadOnly = false;
@@ -193,6 +226,8 @@ namespace Rynchodon.PluginLoader
 			public Plugin[] Downloaded;
 			[DataMember]
 			public PluginConfig[] GitHubConfig;
+			[DataMember]
+			public string PathToGit;
 		}
 
 	}

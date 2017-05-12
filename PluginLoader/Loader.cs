@@ -11,6 +11,7 @@ using Sandbox.Graphics.GUI;
 using SpaceEngineers.Game;
 using VRage.Plugins;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace Rynchodon.PluginLoader
 {
@@ -96,6 +97,10 @@ namespace Rynchodon.PluginLoader
 			if (_instance == null)
 				new Loader(false);
 
+			GitHubClient client = null;
+			if (builder.publish)
+				client = new GitHubClient(new PluginName(builder.author, builder.repo), builder.oAuthToken);
+
 			if (builder.version.CompareTo(default(Version)) <= 0)
 			{
 				foreach (string file in builder.files.Select(f => f.source))
@@ -116,7 +121,21 @@ namespace Rynchodon.PluginLoader
 			Plugin plugin = _instance.AddLocallyCompiled(builder);
 
 			if (builder.publish && GitChecks.Check(builder.files.First().source, builder.pathToGitExe))
-				(new GitHubClient(plugin.name, builder.oAuthToken)).Publish(plugin, builder.release);
+			{
+				Release[] releases = client.GetReleases();
+				if (releases == null)
+				{
+					Logger.WriteLine("Failed to connect to GitHub, cannot publish");
+					return;
+				}
+				if (releases.Length == 0 && !builder.allBuilds)
+					if (MessageBox.Show("This is your first release, make it compatible with older versions of SE?", "SE Compatibility", MessageBoxButtons.YesNo) == DialogResult.Yes)
+					{
+						plugin.version.SeVersion = 0;
+						_instance._data.Save(true);
+					}
+				client.Publish(plugin, builder.release);
+			}
 		}
 
 		/// <summary>
@@ -151,6 +170,12 @@ namespace Rynchodon.PluginLoader
 				_data.GitHubConfig = value;
 				_data.Save();
 			}
+		}
+
+		public string PathToGit
+		{
+			get { return _data.PathToGit; }
+			set { _data.PathToGit = value; }
 		}
 
 		/// <summary>
