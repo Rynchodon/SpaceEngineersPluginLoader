@@ -8,6 +8,9 @@
 		<!-- How to package files -->
 		<Media Id="1" Cabinet="SpaceEngineersPluginLoader.cab" EmbedCab="yes" />
 
+		<!-- Force overwrite of existing files -->
+		<Property Id="REINSTALLMODE" Value="amus" />
+
 		<!-- Get SE_DIRECTORY from registry -->
 		<Property Id="SE_DIRECTORY">
 			<RegistrySearch Id="RegistrySearch_SpaceEngineers" Type="directory" Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850" Name="InstallLocation" />

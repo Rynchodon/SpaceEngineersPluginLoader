@@ -12,37 +12,55 @@ namespace Rynchodon.PluginManager
 
 		const string dll = "PluginLoader.dll", processNameSE = "SpaceEngineers", processNameSED = "SpaceEngineersDedicated";
 
-		public static void Run(string path)
+		public static void Run(string bin64, string launchFrom)
 		{
-			string dllPath = PathExtensions.Combine(path, dll);
+			Logger.WriteLine("loaded");
+
+			string dllPath = PathExtensions.Combine(bin64, dll);
 
 			if (!File.Exists(dllPath))
-				throw new Exception(dll + " not found");
+				Logger.WriteLine("dll not found: " + dll);
 
-			string dedicatedLauncher = path + "\\SpaceEngineersDedicated.exe";
+			string dedicatedLauncher = PathExtensions.Combine(launchFrom, "SpaceEngineersDedicated.exe");
 			bool isDedicatedServer = File.Exists(dedicatedLauncher);
+
+			Logger.WriteLine("looking for process");
 
 			Process process = GetGameProcess(isDedicatedServer);
 
 			if (process == null)
+				Logger.WriteLine("Process not found");
+			else
+				Logger.WriteLine("Found SE process: " + process.ProcessName);
+
+			if (process == null)
 			{
 				if (isDedicatedServer)
+				{
+					Logger.WriteLine("Starting dedicated server");
 					Process.Start(dedicatedLauncher);
+				}
 				else
 				{
-					string pathToSteam = path;
-					for (int i = 0; i < 4; i++)
-						pathToSteam = Path.GetDirectoryName(pathToSteam);
-					pathToSteam += "\\Steam.exe";
+					string pathToSteam = null;
+					foreach (string upPath in PathExtensions.PathsToRoot(launchFrom))
+					{
+						string steamExe = PathExtensions.Combine(upPath, "Steam.exe");
+						if (File.Exists(steamExe))
+							pathToSteam = steamExe;
+					}
 
-					if (File.Exists(pathToSteam))
+					if (pathToSteam != null)
+					{
+						Logger.WriteLine("Starting Space Engineers");
 						Process.Start(pathToSteam, "-applaunch 244850");
+					}
 					else
 					{
-						string launcher = path + "\\SpaceEngineers.exe";
+						string launcher = PathExtensions.Combine(launchFrom, "SpaceEngineers.exe");
 						if (File.Exists(launcher))
 						{
-							Logger.WriteLine("Alternate launch");
+							Logger.WriteLine("Alternate launch of Space Engineers");
 							Process.Start("steam://rungameid/244850");
 							process = WaitForGameStart(false, false);
 							while (!process.WaitForExit(100))
@@ -67,9 +85,8 @@ namespace Rynchodon.PluginManager
 			}
 
 			process = WaitForGameStart(isDedicatedServer);
-			if (process == null)
-				return;
-			Inject(process, dllPath);
+			if (process != null)
+				Inject(process, dllPath);
 		}
 
 		private static Process GetGameProcess(bool isDedicatedServer)
@@ -106,6 +123,8 @@ namespace Rynchodon.PluginManager
 				return null;
 			}
 
+			Logger.WriteLine("Found process: " + process.ProcessName);
+
 			if (!needTitle)
 				return process;
 
@@ -130,6 +149,7 @@ namespace Rynchodon.PluginManager
 						process.WaitForExit();
 						return WaitForGameStart(isDedicatedServer, seconds: 10);
 					}
+					Logger.WriteLine("Found process: " + process.ProcessName);
 					return process;
 				}
 			}

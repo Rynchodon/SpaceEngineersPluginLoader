@@ -249,8 +249,8 @@ namespace Rynchodon.PluginLoader
 			string first = '"' + seplDownloadPath + "\" \"";
 			string bin64 = PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64");
 
-			string copyDll = first + bin64 + "\" " + Dll + " /copyall /W:1 /xx";
-			string copyExe = first + _directory + "\" " + Exe + " /copyall /W:1 /xx";
+			string copyDll = first + bin64 + "\" " + Dll + " /COPY:DATSO /W:1 /xx";
+			string copyExe = first + _directory + "\" " + Exe + " /COPY:DATSO /W:1 /xx";
 
 			Process robocopy = new Process();
 			robocopy.StartInfo.FileName = "cmd.exe";

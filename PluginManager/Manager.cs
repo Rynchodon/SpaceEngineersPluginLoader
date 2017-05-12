@@ -35,39 +35,31 @@ namespace Rynchodon.PluginManager
 
 		public Manager()
 		{
-			try
+			InitializeComponent();
+
+			PluginConfig.CellEndEdit += PluginConfig_CellEndEdit;
+			PluginConfig.KeyPress += PluginConfig_KeyPress;
+			PluginConfig.RowsAdded += PluginConfig_RowsAdded;
+			PluginConfig.UserDeletedRow += PluginConfig_UserDeletedRow;
+
+			for (int i = PluginConfig.Rows.Count - 1; i >= 0; --i)
+				RowAdded(i);
+
+			foreach (PluginConfig config in _loader.GitHubConfig)
 			{
-				InitializeComponent();
-
-				PluginConfig.CellEndEdit += PluginConfig_CellEndEdit;
-				PluginConfig.KeyPress += PluginConfig_KeyPress;
-				PluginConfig.RowsAdded += PluginConfig_RowsAdded;
-				PluginConfig.UserDeletedRow += PluginConfig_UserDeletedRow;
-
-				for (int i = PluginConfig.Rows.Count - 1; i >= 0; --i)
-					RowAdded(i);
-
-				foreach (PluginConfig config in _loader.GitHubConfig)
-				{
-					DataGridViewRow newRow = PluginConfig.Rows[PluginConfig.Rows.Add()];
-					newRow.Cells[ColumnEnabled.Index].Value = config.enabled;
-					newRow.Cells[ColumnAuthor.Index].Value = config.name.author;
-					newRow.Cells[ColumnRepo.Index].Value = config.name.repository;
-					newRow.Cells[ColumnPreRelease.Index].Value = config.downloadPrerelease;
-					CheckRow(newRow.Index);
-				}
-
-				textBoxPathToGit.Text = _loader.PathToGit;
-				CheckGit();
-				SetDeleteImage();
-
-				_needsSave = false;
+				DataGridViewRow newRow = PluginConfig.Rows[PluginConfig.Rows.Add()];
+				newRow.Cells[ColumnEnabled.Index].Value = config.enabled;
+				newRow.Cells[ColumnAuthor.Index].Value = config.name.author;
+				newRow.Cells[ColumnRepo.Index].Value = config.name.repository;
+				newRow.Cells[ColumnPreRelease.Index].Value = config.downloadPrerelease;
+				CheckRow(newRow.Index);
 			}
-			catch (Exception ex)
-			{
-				Logger.WriteLine(ex.ToString());
-				throw;
-			}
+
+			textBoxPathToGit.Text = _loader.PathToGit;
+			CheckGit();
+			SetDeleteImage();
+
+			_needsSave = false;
 		}
 
 		private bool CheckGit()
@@ -277,7 +269,7 @@ namespace Rynchodon.PluginManager
 		private void Launch_Click(object sender, EventArgs e)
 		{
 			Close();
-			DllInjector.Run(Launcher.PathBin64);
+			DllInjector.Run(Launcher.PathBin64, Launcher.PathBin64);
 		}
 
 		private void buttonSave_Click(object sender, EventArgs e)
@@ -301,7 +293,7 @@ namespace Rynchodon.PluginManager
 		private void buttonLaunchDs_Click(object sender, EventArgs e)
 		{
 			Close();
-			DllInjector.Run(Launcher.PathDedicated64);
+			DllInjector.Run(Launcher.PathBin64, Launcher.PathDedicated64);
 		}
 
 		#endregion Event Handlers
