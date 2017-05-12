@@ -35,31 +35,39 @@ namespace Rynchodon.PluginManager
 
 		public Manager()
 		{
-			InitializeComponent();
-
-			PluginConfig.CellEndEdit += PluginConfig_CellEndEdit;
-			PluginConfig.KeyPress += PluginConfig_KeyPress;
-			PluginConfig.RowsAdded += PluginConfig_RowsAdded;
-			PluginConfig.UserDeletedRow += PluginConfig_UserDeletedRow;
-
-			for (int i = PluginConfig.Rows.Count - 1; i >= 0; --i)
-				RowAdded(i);
-
-			foreach (PluginConfig config in _loader.GitHubConfig)
+			try
 			{
-				DataGridViewRow newRow = PluginConfig.Rows[PluginConfig.Rows.Add()];
-				newRow.Cells[ColumnEnabled.Index].Value = config.enabled;
-				newRow.Cells[ColumnAuthor.Index].Value = config.name.author;
-				newRow.Cells[ColumnRepo.Index].Value = config.name.repository;
-				newRow.Cells[ColumnPreRelease.Index].Value = config.downloadPrerelease;
-				CheckRow(newRow.Index);
+				InitializeComponent();
+
+				PluginConfig.CellEndEdit += PluginConfig_CellEndEdit;
+				PluginConfig.KeyPress += PluginConfig_KeyPress;
+				PluginConfig.RowsAdded += PluginConfig_RowsAdded;
+				PluginConfig.UserDeletedRow += PluginConfig_UserDeletedRow;
+
+				for (int i = PluginConfig.Rows.Count - 1; i >= 0; --i)
+					RowAdded(i);
+
+				foreach (PluginConfig config in _loader.GitHubConfig)
+				{
+					DataGridViewRow newRow = PluginConfig.Rows[PluginConfig.Rows.Add()];
+					newRow.Cells[ColumnEnabled.Index].Value = config.enabled;
+					newRow.Cells[ColumnAuthor.Index].Value = config.name.author;
+					newRow.Cells[ColumnRepo.Index].Value = config.name.repository;
+					newRow.Cells[ColumnPreRelease.Index].Value = config.downloadPrerelease;
+					CheckRow(newRow.Index);
+				}
+
+				textBoxPathToGit.Text = _loader.PathToGit;
+				CheckGit();
+				SetDeleteImage();
+
+				_needsSave = false;
 			}
-
-			textBoxPathToGit.Text = _loader.PathToGit;
-			CheckGit();
-			SetDeleteImage();
-
-			_needsSave = false;
+			catch (Exception ex)
+			{
+				Logger.WriteLine(ex.ToString());
+				throw;
+			}
 		}
 
 		private bool CheckGit()

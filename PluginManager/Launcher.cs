@@ -21,34 +21,22 @@ namespace Rynchodon.PluginManager
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			try
+			string seDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
+			PathBin64 = Path.Combine(seDirectory, "Bin64");
+			PathDedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
+
+			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
+			if (args != null && args.Length != 0)
 			{
-				string seDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-
-				PathBin64 = Path.Combine(seDirectory, "Bin64");
-				PathDedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
-
-				AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-
-				if (args != null && args.Length != 0)
-				{
-					if (args[0].Equals("--CreateTemplates", StringComparison.CurrentCultureIgnoreCase))
-						LoadBuilder.CreateTemplates();
-					else
-						LoadBuilder.AddLocallyCompiled(args);
-					return;
-				}
-
-				Application.EnableVisualStyles();
-				Application.SetCompatibleTextRenderingDefault(false);
-				Application.Run(new Manager());
+				LoadBuilder.Load(args);
+				return;
 			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-				Console.ReadKey();
-				throw;
-			}
+
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+			Application.Run(new Manager());
 		}
 
 		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)

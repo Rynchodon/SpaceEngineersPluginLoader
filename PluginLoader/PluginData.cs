@@ -77,9 +77,7 @@ namespace Rynchodon.PluginLoader
 		{
 			if (config.name.Equals(loadArms))
 			{
-				string log = "ERROR: Cannot add " + config.name.repository + ", it is incompatible with " + Loader.SeplShort + ". Adding ARMS instead";
-				Logger.WriteLine(log);
-				Console.Error.WriteLine(log);
+				Logger.WriteLine("ERROR: Cannot add " + config.name.repository + ", it is incompatible with " + Loader.SeplShort + ". Adding ARMS instead");
 				config.name.repository = "ARMS";
 			}
 			_gitHubConfig[config.name] = config;

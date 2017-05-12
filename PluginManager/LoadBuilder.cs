@@ -11,7 +11,23 @@ namespace Rynchodon.PluginManager
 	internal static class LoadBuilder
 	{
 
-		public static void CreateTemplates()
+		public static void Load(string[] args)
+		{
+			try
+			{
+				if (args[0].Equals("--CreateTemplates", StringComparison.CurrentCultureIgnoreCase))
+					CreateTemplates();
+				else
+					AddLocallyCompiled(args);
+			}
+			catch (Exception ex)
+			{
+				Logger.WriteLine(ex.ToString());
+				throw;
+			}
+		}
+
+		private static void CreateTemplates()
 		{
 			PluginBuilder template = new PluginBuilder()
 			{
@@ -30,7 +46,7 @@ namespace Rynchodon.PluginManager
 			WriteFile("template.xml", false, template);
 		}
 
-		public static void AddLocallyCompiled(string[] args)
+		private static void AddLocallyCompiled(string[] args)
 		{
 			// figure out which arg is the file
 			string builderFilePath = null;

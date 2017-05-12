@@ -101,11 +101,11 @@
     <Compile Include="..\PluginManager\Properties\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Logger.cs" />
     <Compile Include="DownloadProgress.cs" />
     <Compile Include="GitChecks.cs" />
     <Compile Include="GitHubClient.cs" />
     <Compile Include="Loader.cs" />
-    <Compile Include="Logger.cs" />
     <Compile Include="PluginBuilder.cs" />
     <Compile Include="PathExtensions.cs" />
     <Compile Include="Plugin.cs" />

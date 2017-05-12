@@ -203,7 +203,6 @@ namespace Rynchodon.PluginLoader
 
 			_data = new PluginData(_directory);
 
-			Logger.logFile = PathExtensions.Combine(_directory, (Game.IsDedicated ? SeplShort + " Dedicated.log" : SeplShort + ".log"));
 			Logger.WriteLine(SeplShort + " version: " + new Version(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location), 0));
 
 			if (start)

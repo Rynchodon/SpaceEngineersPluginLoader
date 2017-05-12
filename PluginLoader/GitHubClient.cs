@@ -268,10 +268,7 @@ namespace Rynchodon.PluginLoader
 			try
 			{
 				plugin.Zip(zipFilePath);
-				if (PublishRelease(release, zipFilePath))
-					Console.WriteLine("Release published");
-				else
-					Console.WriteLine("Publish failed, see log for details");
+				PublishRelease(release, zipFilePath);
 			}
 			finally
 			{
