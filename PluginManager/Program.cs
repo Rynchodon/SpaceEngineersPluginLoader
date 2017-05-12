@@ -8,7 +8,7 @@ namespace Rynchodon.PluginManager
 {
 	public static class Program
 	{
-		private static string _bin64, _dedicated64;
+		public static string PathBin64, PathDedicated64;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -20,8 +20,8 @@ namespace Rynchodon.PluginManager
 			{
 				string seDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 
-				_bin64 = Path.Combine(seDirectory, "Bin64");
-				_dedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
+				PathBin64 = Path.Combine(seDirectory, "Bin64");
+				PathDedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
 
 				AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
@@ -49,7 +49,7 @@ namespace Rynchodon.PluginManager
 		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
 		{
 			Assembly assembly;
-			if (TryResolveAssembly(_bin64, args, out assembly) || TryResolveAssembly(_dedicated64, args, out assembly))
+			if (TryResolveAssembly(PathBin64, args, out assembly) || TryResolveAssembly(PathDedicated64, args, out assembly))
 				return assembly;
 			return null;
 		}

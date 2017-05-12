@@ -269,7 +269,7 @@ namespace Rynchodon.PluginManager
 		private void Launch_Click(object sender, EventArgs e)
 		{
 			Close();
-			DllInjector.Run();
+			DllInjector.Run(Program.PathBin64);
 		}
 
 		private void buttonSave_Click(object sender, EventArgs e)
@@ -292,7 +292,8 @@ namespace Rynchodon.PluginManager
 
 		private void buttonLaunchDs_Click(object sender, EventArgs e)
 		{
-
+			Close();
+			DllInjector.Run(Program.PathDedicated64);
 		}
 
 		#endregion Event Handlers

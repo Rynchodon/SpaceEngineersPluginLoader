@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -13,15 +12,14 @@ namespace Rynchodon.PluginManager
 
 		const string dll = "PluginLoader.dll", processNameSE = "SpaceEngineers", processNameSED = "SpaceEngineersDedicated";
 
-		public static void Run()
+		public static void Run(string path)
 		{
-			string myDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			string dllPath = PathExtensions.Combine(myDirectory, dll);
+			string dllPath = PathExtensions.Combine(path, dll);
 
 			if (!File.Exists(dllPath))
 				throw new Exception(dll + " not found");
 
-			string dedicatedLauncher = myDirectory + "\\SpaceEngineersDedicated.exe";
+			string dedicatedLauncher = path + "\\SpaceEngineersDedicated.exe";
 			bool isDedicatedServer = File.Exists(dedicatedLauncher);
 
 			Process process = GetGameProcess(isDedicatedServer);
@@ -32,7 +30,7 @@ namespace Rynchodon.PluginManager
 					Process.Start(dedicatedLauncher);
 				else
 				{
-					string pathToSteam = myDirectory;
+					string pathToSteam = path;
 					for (int i = 0; i < 4; i++)
 						pathToSteam = Path.GetDirectoryName(pathToSteam);
 					pathToSteam += "\\Steam.exe";
@@ -41,7 +39,7 @@ namespace Rynchodon.PluginManager
 						Process.Start(pathToSteam, "-applaunch 244850");
 					else
 					{
-						string launcher = myDirectory + "\\SpaceEngineers.exe";
+						string launcher = path + "\\SpaceEngineers.exe";
 						if (File.Exists(launcher))
 						{
 							Logger.WriteLine("Alternate launch");
