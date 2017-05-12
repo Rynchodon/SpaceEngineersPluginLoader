@@ -118,16 +118,22 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\check.jpg" />
+    <None Include="Resources\garbage.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\failed.jpg" />
+    <None Include="Resources\connection_failed.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\search.jpg" />
+    <None Include="Resources\malformed.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\warning.jpg" />
+    <None Include="Resources\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\success.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blank.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
