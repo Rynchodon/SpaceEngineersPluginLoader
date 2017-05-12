@@ -16,7 +16,15 @@
     }
   ],
   "pathToGitExe": null,
-  "release": false,
+  "publish": false,
+  "release": {
+    "body": null,
+    "draft": true,
+    "name": null,
+    "prerelease": false,
+    "target_commitish": null,
+    "zipFileName": null
+  },
   "repo": "Repo",
   "requires": [
     {

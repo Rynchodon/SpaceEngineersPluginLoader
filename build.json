@@ -19,7 +19,15 @@
     }
   ],
   "pathToGitExe": "C:\\Program Files (x86)\\Git\\bin\\git.exe",
-  "release": false,
+  "publish": false,
+  "release": {
+    "body": null,
+    "draft": true,
+    "name": null,
+    "prerelease": false,
+    "target_commitish": null,
+    "zipFileName": "SEPL_AutoUpdateAssets.zip"
+  },
   "repo": "SpaceEngineersPluginLoader",
   "requires": null,
   "version": {

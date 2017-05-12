@@ -123,10 +123,10 @@ namespace Rynchodon.PluginLoader
 			Serialization.WriteJson(manifestPath, new Manifest(_files.Keys.ToArray(), _files.Values.ToArray(), requiredPlugins), true);
 		}
 
-		public void Zip(string fileName)
+		public void Zip(string filePath)
 		{
 			CreateManifest();
-			using (FileStream zipFile = new FileStream(fileName, FileMode.CreateNew))
+			using (FileStream zipFile = new FileStream(filePath, FileMode.CreateNew))
 			using (ZipArchive archive = new ZipArchive(zipFile, ZipArchiveMode.Create))
 				foreach (var file in _files)
 					archive.CreateEntryFromFile(GetFullPath(file.Key), file.Key);

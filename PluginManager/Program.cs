@@ -48,8 +48,10 @@ namespace Rynchodon.PluginManager
 					new PluginBuilder.File("\\Path\\To\\LoadFirst.dll", null, null),
 					new PluginBuilder.File("\\Path\\To\\LoadSecond.dll", null, new string[] { "LoadFirst.dll" })
 				},
+				release = new PluginBuilder.Release(),
 				requires = new PluginName[] { new PluginName("OtherAuthor", "OtherRepo") }
 			};
+			Logger.WriteLine("Creating templates at " + Path.GetFullPath("."));
 			WriteFile("template.json", true, template);
 			WriteFile("template.xml", false, template);
 		}

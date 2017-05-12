@@ -29,11 +29,22 @@ namespace Rynchodon.PluginLoader
 			}
 		}
 
+		[DataContract]
+		public sealed class Release
+		{
+			[DataMember]
+			public string target_commitish, name, body, zipFileName;
+			[DataMember]
+			public bool draft = true, prerelease;
+		}
+
 		/// <summary>Plugins that are required to be loaded before this one.</summary>
 		[DataMember]
 		public PluginName[] requires;
 		[DataMember]
 		public File[] files;
+		[DataMember]
+		public Release release;
 		/// <summary>
 		/// The author of the GitHub repository.
 		/// </summary>
@@ -58,7 +69,7 @@ namespace Rynchodon.PluginLoader
 		/// Publish the plugin to GitHub, you probably do not want to set this in builder file.
 		/// </summary>
 		[DataMember]
-		public bool release;
+		public bool publish;
 		/// <summary>
 		/// GitHub oAuthToken, needed to publish a file. Keep this out of version control!
 		/// </summary>

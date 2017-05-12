@@ -16,7 +16,15 @@
     </PluginBuilder.File>
   </files>
   <pathToGitExe i:nil="true" />
-  <release>false</release>
+  <publish>false</publish>
+  <release>
+    <body i:nil="true" />
+    <draft>true</draft>
+    <name i:nil="true" />
+    <prerelease>false</prerelease>
+    <target_commitish i:nil="true" />
+    <zipFileName i:nil="true" />
+  </release>
   <repo>Repo</repo>
   <requires>
     <PluginName>

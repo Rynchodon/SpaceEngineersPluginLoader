@@ -115,8 +115,8 @@ namespace Rynchodon.PluginLoader
 			_instance._task.Wait();
 			Plugin plugin = _instance.AddLocallyCompiled(builder);
 
-			if (builder.release && GitChecks.Check(builder.files.First().source, builder.pathToGitExe))
-				(new GitHubClient(plugin.name, builder.oAuthToken)).Publish(plugin);
+			if (builder.publish && GitChecks.Check(builder.files.First().source, builder.pathToGitExe))
+				(new GitHubClient(plugin.name, builder.oAuthToken)).Publish(plugin, builder.release);
 		}
 
 		/// <summary>

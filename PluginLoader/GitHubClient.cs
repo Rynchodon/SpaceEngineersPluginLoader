@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,15 +13,6 @@ namespace Rynchodon.PluginLoader
 	/// </summary>
 	public class GitHubClient
 	{
-
-		[DataContract]
-		private class Input
-		{
-			[DataMember]
-			public string ZipFileName = null;
-			[DataMember]
-			public CreateRelease Release;
-		}
 
 		public readonly PluginName name;
 		private readonly string _oAuthToken, _userAgent;
@@ -255,79 +244,39 @@ namespace Rynchodon.PluginLoader
 			}
 		}
 
-		internal void Publish(Plugin plugin)
+		internal void Publish(Plugin plugin, PluginBuilder.Release releaseBuilder)
 		{
 			if (!HasOAuthToken)
 				throw new ArgumentException("Need oAuthToken");
 
-			Input input = new Input();
-			input.Release = new CreateRelease(plugin.version, true);
-			string tag_name = input.Release.tag_name;
+			CreateRelease release = new CreateRelease(plugin.version, true);
+			release.target_commitish = releaseBuilder.target_commitish;
+			release.name = releaseBuilder.name;
+			release.body = releaseBuilder.body;
+			release.prerelease = releaseBuilder.prerelease;
 
-			string zipTempFile = PathExtensions.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".zip");
-			Task compress = new Task(() => plugin.Zip(zipTempFile));
-			compress.Start();
+			string zipFileName;
+			if (releaseBuilder.zipFileName != null)
+				zipFileName = Path.GetFileName(releaseBuilder.zipFileName);
+			else
+				zipFileName = plugin.name.repository;
 
-			string releaseFile = PathExtensions.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".txt");
+			if (!zipFileName.EndsWith(".zip"))
+				zipFileName = zipFileName + ".zip";
+
+			string zipFilePath = PathExtensions.Combine(plugin.directory, zipFileName);
 			try
 			{
-				Serialization.WriteJson(releaseFile, input);
-
-				string fail;
-				if (!CanCreateRelease(plugin.version, out fail))
-				{
-					Console.WriteLine(fail);
-					return;
-				}
-
-				while (true)
-				{
-					Process edit = Process.Start(releaseFile);
-					edit.WaitForExit();
-
-					try
-					{
-						Serialization.ReadJson(releaseFile, out input);
-						break;
-					}
-					catch (SerializationException ex)
-					{
-						Console.WriteLine(ex.Message);
-						if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel) == DialogResult.Cancel)
-							return;
-					}
-				}
-
-				// force release version to match plugin version
-				input.Release.tag_name = tag_name;
-
-				Console.WriteLine("Release created");
-				compress.Wait();
-
-				if (input.ZipFileName == null)
-					input.ZipFileName = plugin.name.repository + ".zip";
-				else if (!input.ZipFileName.EndsWith(".zip"))
-					input.ZipFileName = input.ZipFileName + ".zip";
-
-				input.ZipFileName = PathExtensions.Combine(Path.GetTempPath(), input.ZipFileName);
-				if (File.Exists(input.ZipFileName))
-					File.Delete(input.ZipFileName);
-				File.Move(zipTempFile, input.ZipFileName);
-
-				if (PublishRelease(input.Release, input.ZipFileName))
+				plugin.Zip(zipFilePath);
+				if (PublishRelease(release, zipFilePath))
 					Console.WriteLine("Release published");
 				else
 					Console.WriteLine("Publish failed, see log for details");
 			}
 			finally
 			{
-				compress.Wait();
-				if (File.Exists(releaseFile))
-					File.Delete(releaseFile);
-				if (File.Exists(zipTempFile))
-					File.Delete(zipTempFile);
-				if (File.Exists(input.ZipFileName))
-					File.Delete(input.ZipFileName);
+				if (File.Exists(zipFilePath))
+					File.Delete(zipFilePath);
 			}
 		}
 
