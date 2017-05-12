@@ -8,7 +8,7 @@ namespace Rynchodon.PluginLoader
 	/// <summary>
 	/// Creates a GUI screen to show download progress. This screen prevents the player from doing anything until it closes.
 	/// </summary>
-	class DownloadProgress : MyGuiScreenProgressAsync, IDisposable
+	internal sealed class DownloadProgress : MyGuiScreenProgressAsync, IDisposable
 	{
 		internal class Stats
 		{

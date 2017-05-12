@@ -8,7 +8,7 @@ namespace Rynchodon.PluginLoader
 	/// <summary>
 	/// Test for git being ready for publishing.
 	/// </summary>
-	public class GitChecks
+	internal sealed class GitChecks
 	{
 
 		/// <summary>
