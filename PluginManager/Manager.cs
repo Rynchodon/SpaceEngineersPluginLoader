@@ -57,6 +57,7 @@ namespace Rynchodon.PluginManager
 
 			textBoxPathToGit.Text = _loader.PathToGit;
 			CheckGit();
+			SetDeleteImage();
 
 			_needsSave = false;
 		}
@@ -154,7 +155,15 @@ namespace Rynchodon.PluginManager
 			}
 
 			DataGridViewCell deleteCell = PluginConfig.Rows[rowIndex].Cells[ColumnDelete.Index];
-			deleteCell.Value = rowIndex < PluginConfig.Rows.Count - 1 ? Properties.Resources.garbage : Properties.Resources.blank;
+		}
+
+		private void SetDeleteImage()
+		{
+			int rowIndex = PluginConfig.Rows.Count - 1;
+			PluginConfig.Rows[rowIndex].Cells[ColumnDelete.Index].Value = Properties.Resources.blank;
+			--rowIndex;
+			for (; rowIndex >= 0; --rowIndex)
+				PluginConfig.Rows[rowIndex].Cells[ColumnDelete.Index].Value = Properties.Resources.garbage;
 		}
 
 		private void SavePluginConfig()
@@ -249,6 +258,7 @@ namespace Rynchodon.PluginManager
 		{
 			for (int rowIndex = e.RowCount + e.RowIndex - 1; rowIndex >= e.RowIndex; --rowIndex)
 				RowAdded(rowIndex);
+			SetDeleteImage();
 		}
 
 		private void PluginConfig_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
