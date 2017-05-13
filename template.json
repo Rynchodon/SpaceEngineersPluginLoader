@@ -1,5 +1,4 @@
 {
-  "allBuilds": false,
   "author": "Author",
   "files": [
     {
@@ -15,7 +14,6 @@
       "targetFolder": null
     }
   ],
-  "pathToGitExe": null,
   "publish": false,
   "release": {
     "body": null,
@@ -25,7 +23,7 @@
     "target_commitish": null,
     "zipFileName": null
   },
-  "repo": "Repo",
+  "repository": "Repo",
   "requires": [
     {
       "author": "OtherAuthor",

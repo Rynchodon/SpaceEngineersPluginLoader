@@ -99,7 +99,7 @@ namespace Rynchodon.PluginLoader
 
 			GitHubClient client = null;
 			if (builder.publish)
-				client = new GitHubClient(new PluginName(builder.author, builder.repo), builder.oAuthToken);
+				client = new GitHubClient(new PluginName(builder.author, builder.repository), builder.oAuthToken);
 
 			if (builder.version.CompareTo(default(Version)) <= 0)
 			{
@@ -112,15 +112,15 @@ namespace Rynchodon.PluginLoader
 				Logger.WriteLine("Got plugin version from files: " + builder.version);
 			}
 
-			if (builder.allBuilds)
+			if (builder.version.SeVersion < 0)
 				builder.version.SeVersion = 0;
-			else if (builder.version.SeVersion < 1)
+			else if (builder.version.SeVersion == 0)
 				builder.version.SeVersion = GetCurrentSEVersion();
 
 			_instance._task.Wait();
 			Plugin plugin = _instance.AddLocallyCompiled(builder);
 
-			if (builder.publish && GitChecks.Check(builder.files.First().source, builder.pathToGitExe))
+			if (builder.publish && GitChecks.Check(builder.files.First().source, _instance._data.PathToGit))
 			{
 				Release[] releases = client.GetReleases();
 				if (releases == null)
@@ -128,8 +128,11 @@ namespace Rynchodon.PluginLoader
 					Logger.WriteLine("Failed to connect to GitHub, cannot publish");
 					return;
 				}
-				if (releases.Length == 0 && !builder.allBuilds)
-					if (MessageBox.Show("This is your first release, make it compatible with older versions of SE?", "SE Compatibility", MessageBoxButtons.YesNo) == DialogResult.Yes)
+				if (releases.Length == 0 && builder.version.SeVersion > 0)
+					if (MessageBox.Show("This is your first release, make it compatible with older versions of SE?" + Environment.NewLine +
+						"If you intend to upload releases for older versions of SE choose No." + Environment.NewLine +
+						"This will not affect future releases"
+						, "SE Compatibility", MessageBoxButtons.YesNo) == DialogResult.Yes)
 					{
 						plugin.version.SeVersion = 0;
 						_instance._data.Save(true);
@@ -404,7 +407,7 @@ namespace Rynchodon.PluginLoader
 
 		private Plugin AddLocallyCompiled(PluginBuilder builder)
 		{
-			PluginName name = new PluginName(builder.author, builder.repo);
+			PluginName name = new PluginName(builder.author, builder.repository);
 			Plugin plugin;
 			if (!_data.TryGetDownloaded(name, out plugin))
 				plugin = new Plugin(_directory, new PluginConfig(name, true));

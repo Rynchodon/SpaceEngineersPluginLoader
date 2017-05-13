@@ -1,5 +1,4 @@
 ﻿<PluginBuilder xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/Rynchodon.PluginLoader">
-  <allBuilds>false</allBuilds>
   <author>Author</author>
   <files>
     <PluginBuilder.File>
@@ -15,7 +14,6 @@
       <targetFolder i:nil="true" />
     </PluginBuilder.File>
   </files>
-  <pathToGitExe i:nil="true" />
   <publish>false</publish>
   <release>
     <body i:nil="true" />
@@ -25,7 +23,7 @@
     <target_commitish i:nil="true" />
     <zipFileName i:nil="true" />
   </release>
-  <repo>Repo</repo>
+  <repository>Repo</repository>
   <requires>
     <PluginName>
       <author>OtherAuthor</author>

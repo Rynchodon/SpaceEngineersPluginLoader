@@ -1,5 +1,4 @@
 {
-  "allBuilds": true,
   "author": "Rynchodon",
   "files": [
     {
@@ -18,7 +17,6 @@
       "targetFolder": null
     }
   ],
-  "pathToGitExe": "C:\\Program Files (x86)\\Git\\bin\\git.exe",
   "publish": false,
   "release": {
     "body": null,
@@ -28,7 +26,7 @@
     "target_commitish": null,
     "zipFileName": "SEPL_AutoUpdateAssets.zip"
   },
-  "repo": "SpaceEngineersPluginLoader",
+  "repository": "SpaceEngineersPluginLoader",
   "requires": null,
   "version": {
     "Build": 0,

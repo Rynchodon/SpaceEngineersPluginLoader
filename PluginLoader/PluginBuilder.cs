@@ -54,12 +54,7 @@ namespace Rynchodon.PluginLoader
 		/// The name of the GitHub repository.
 		/// </summary>
 		[DataMember]
-		public string repo;
-		/// <summary>
-		/// Plugin will be considered compatible with all SE versions.
-		/// </summary>
-		[DataMember]
-		public bool allBuilds;
+		public string repository;
 		/// <summary>
 		/// Used by SEPL to decide which release of a plugin to download.
 		/// </summary>
@@ -75,10 +70,5 @@ namespace Rynchodon.PluginLoader
 		/// </summary>
 		[IgnoreDataMember]
 		public string oAuthToken;
-		/// <summary>
-		/// Path to git.exe, used to check status before publishing.
-		/// </summary>
-		[DataMember]
-		public string pathToGitExe;
 	}
 }

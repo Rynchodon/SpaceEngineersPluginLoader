@@ -1,1 +1,2 @@
+"C:\Games\Steam\SteamApps\common\SpaceEngineers\SpaceEngineersPluginLoader\PluginManager.exe" --CreateTemplates
 "C:\Games\Steam\SteamApps\common\SpaceEngineers\SpaceEngineersPluginLoader\PluginManager.exe" build.json publish:true

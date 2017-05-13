@@ -32,7 +32,7 @@ namespace Rynchodon.PluginManager
 			PluginBuilder template = new PluginBuilder()
 			{
 				author = "Author",
-				repo = "Repo",
+				repository = "Repo",
 				files = new PluginBuilder.File[]
 				{
 					new PluginBuilder.File("\\Path\\To\\LoadFirst.dll", null, null),
