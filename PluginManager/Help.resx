@@ -117,4 +117,45 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="textBoxHelp.Text" xml:space="preserve">
+    <value>Config
+======
+Launch Plugin Manager.
+
+Plugins are defined in the grid portion at the top:
+	The blank row at the bottom is for adding new entries; it cannot be deleted and will not be saved.
+	Enabled: The box must be ticked for the plugin to be loaded into Space Engineers.
+	Author: The GitHub author of the plugin, this may be different from the name the author uses on steam.
+	Repository: The name of the plugin on GitHub.
+	Pre-Release: Enable this only if you are the author or are instructed to do so by the author. Enables downloading of pre-release versions of the plugin.
+	Status:
+		Checkmark: The Author and Repository are correct and the plugin can be downloaded from GitHub. The plugin's configuration will be saved.
+		Magnifying Glass: Checking GitHub to see if the plugin can be located. The plugin's configuration will be saved.
+		Warning Symbol: Either you are not connected to the internet or no repository exists for the plugin; check your spelling. The plugin's configuration will be saved.
+		X: The Author or Repository is missing. The plugin's configuration cannot be saved.
+		Blank: Author and Repository have not been filled in. The plugin's configuration cannot be saved.
+	Delete: Remove a plugin from the list.
+
+Buttons:
+	Save: Saves the configuration of all plugins.
+	Help: Display help text.
+	Launch SE and SEPL: Launch Space Engineers and load all enabled plugins.
+	Launch DS and SEPL: Launch Space Engineers Dedicated Server and load all enabled plugins.
+
+(Modder Only) Path to git: Only for publishing plugins, not needed to configure plugins.
+
+
+Launch Without Plugin Manager
+=============================
+Follow these steps to have SEPL automatically load plugins every time Space Engineers is launched.
+In steam library, right click on Space Engineers.
+Left click on properties.
+Left click on "SET LAUNCH OPTIONS..."
+If the text box is not empty, leave a space.
+Add "-plugin PluginLoader.dll" without the quotes.
+Left click "OK".
+Left click "CLOSE"
+
+See the readme for more information</value>
+  </data>
 </root>

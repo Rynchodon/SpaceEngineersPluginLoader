@@ -17,6 +17,9 @@ namespace Rynchodon.PluginLoader
 			if (pathParts == null)
 				throw new ArgumentNullException("pathParts");
 
+			if (pathParts.Length == 0)
+				throw new ArgumentException("pathParts has no elements");
+
 			int index = 0;
 			string path = pathParts[index];
 			if (path == null)

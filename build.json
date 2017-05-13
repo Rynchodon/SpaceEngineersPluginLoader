@@ -15,6 +15,11 @@
       "requires": null,
       "source": "License.rtf",
       "targetFolder": null
+    },
+    {
+      "requires": null,
+      "source": "Readme.txt",
+      "targetFolder": null
     }
   ],
   "publish": false,
@@ -33,6 +38,6 @@
     "Major": 0,
     "Minor": 0,
     "Revision": 0,
-    "SeVersion": 0
+    "SeVersion": -1
   }
 }

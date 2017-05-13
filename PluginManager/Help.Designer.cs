@@ -28,24 +28,28 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.labelPlaceholder = new System.Windows.Forms.Label();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Help));
+			this.textBoxHelp = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
-			// labelPlaceholder
+			// textBoxHelp
 			// 
-			this.labelPlaceholder.AutoSize = true;
-			this.labelPlaceholder.Location = new System.Drawing.Point(51, 57);
-			this.labelPlaceholder.Name = "labelPlaceholder";
-			this.labelPlaceholder.Size = new System.Drawing.Size(82, 13);
-			this.labelPlaceholder.TabIndex = 0;
-			this.labelPlaceholder.Text = "No help for you!";
+			this.textBoxHelp.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.textBoxHelp.Location = new System.Drawing.Point(0, 0);
+			this.textBoxHelp.Multiline = true;
+			this.textBoxHelp.Name = "textBoxHelp";
+			this.textBoxHelp.ReadOnly = true;
+			this.textBoxHelp.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.textBoxHelp.Size = new System.Drawing.Size(869, 521);
+			this.textBoxHelp.TabIndex = 1;
+			this.textBoxHelp.Text = resources.GetString("textBoxHelp.Text");
 			// 
 			// Help
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(284, 262);
-			this.Controls.Add(this.labelPlaceholder);
+			this.ClientSize = new System.Drawing.Size(869, 521);
+			this.Controls.Add(this.textBoxHelp);
 			this.Name = "Help";
 			this.Text = "Help";
 			this.ResumeLayout(false);
@@ -55,6 +59,6 @@
 
 		#endregion
 
-		private System.Windows.Forms.Label labelPlaceholder;
+		private System.Windows.Forms.TextBox textBoxHelp;
 	}
 }

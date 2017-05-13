@@ -22,15 +22,15 @@ namespace Rynchodon.PluginManager
 		private Button Launch;
 		private Button buttonLaunchDs;
 		private DataGridViewImageColumn dataGridViewImageColumn1;
+		private TextBox textBoxPathToGit;
+		private Label labelPathToGit;
+		private PictureBox pictureBoxPathToGit;
 		private DataGridViewCheckBoxColumn ColumnEnabled;
 		private DataGridViewTextBoxColumn ColumnAuthor;
 		private DataGridViewTextBoxColumn ColumnRepo;
 		private DataGridViewCheckBoxColumn ColumnPreRelease;
 		private DataGridViewImageColumn ColumnStatus;
 		private DataGridViewImageColumn ColumnDelete;
-		private TextBox textBoxPathToGit;
-		private Label labelPathToGit;
-		private PictureBox pictureBoxPathToGit;
 		private Help help;
 
 		public Manager()
@@ -81,9 +81,13 @@ namespace Rynchodon.PluginManager
 
 		private void RowAdded(int rowIndex)
 		{
-			PluginConfig.Rows[rowIndex].Cells[ColumnEnabled.Index].Value = true;
-			PluginConfig.Rows[rowIndex].Cells[ColumnStatus.Index].Value = Properties.Resources.blank;
-			PluginConfig.Rows[rowIndex].Cells[ColumnDelete.Index].Value = Properties.Resources.blank;
+			var cells = PluginConfig.Rows[rowIndex].Cells;
+			cells[ColumnEnabled.Index].Value = true;
+			cells[ColumnStatus.Index].Value = Properties.Resources.blank;
+			cells[ColumnDelete.Index].Value = Properties.Resources.blank;
+
+			for (int i = PluginConfig.Columns.Count - 1; i >= 0; --i)
+				cells[i].ToolTipText = PluginConfig.Columns[i].ToolTipText;
 		}
 
 		private void CheckRow(int rowIndex)
@@ -138,18 +142,23 @@ namespace Rynchodon.PluginManager
 			switch (status)
 			{
 				case Status.None:
+					statusCell.ToolTipText = "Author and Repository have not been filled in.";
 					statusCell.Value = Properties.Resources.blank;
 					break;
 				case Status.ConnectionFailed:
+					statusCell.ToolTipText = "Failed to connect to Repository; check your spelling.";
 					statusCell.Value = Properties.Resources.connection_failed;
 					break;
 				case Status.Malformed:
+					statusCell.ToolTipText = "The Author or Repository is missing.";
 					statusCell.Value = Properties.Resources.malformed;
 					break;
 				case Status.Searching:
+					statusCell.ToolTipText = "Checking GitHub to see if the plugin can be located.";
 					statusCell.Value = Properties.Resources.search;
 					break;
 				case Status.Success:
+					statusCell.ToolTipText = "The Author and Repository are correct and the plugin can be downloaded from GitHub.";
 					statusCell.Value = Properties.Resources.success;
 					break;
 			}
@@ -355,6 +364,7 @@ namespace Rynchodon.PluginManager
 			this.ColumnEnabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
 			this.ColumnEnabled.HeaderText = "Enabled";
 			this.ColumnEnabled.Name = "ColumnEnabled";
+			this.ColumnEnabled.ToolTipText = "This box must be ticked for the plugin to be loaded into Space Engineers.";
 			this.ColumnEnabled.Width = 52;
 			// 
 			// ColumnAuthor
@@ -378,7 +388,7 @@ namespace Rynchodon.PluginManager
 			this.ColumnPreRelease.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
 			this.ColumnPreRelease.HeaderText = "Pre-Release";
 			this.ColumnPreRelease.Name = "ColumnPreRelease";
-			this.ColumnPreRelease.ToolTipText = "When enabled, SEPL will download pre-releases of the plugin.";
+			this.ColumnPreRelease.ToolTipText = "Enable this only if you are the author or are instructed to do so by the author.";
 			this.ColumnPreRelease.Width = 71;
 			// 
 			// ColumnStatus
@@ -395,6 +405,7 @@ namespace Rynchodon.PluginManager
 			this.ColumnDelete.HeaderText = "Delete";
 			this.ColumnDelete.Name = "ColumnDelete";
 			this.ColumnDelete.ReadOnly = true;
+			this.ColumnDelete.ToolTipText = "Remove this plugin from the list.";
 			this.ColumnDelete.Width = 44;
 			// 
 			// buttonSave
@@ -416,6 +427,7 @@ namespace Rynchodon.PluginManager
 			this.textBoxOutput.Multiline = true;
 			this.textBoxOutput.Name = "textBoxOutput";
 			this.textBoxOutput.ReadOnly = true;
+			this.textBoxOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.textBoxOutput.Size = new System.Drawing.Size(499, 100);
 			this.textBoxOutput.TabIndex = 4;
 			this.textBoxOutput.WordWrap = false;
