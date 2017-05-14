@@ -132,7 +132,7 @@ Plugins are defined in the grid portion at the top:
 		Checkmark: The Author and Repository are correct and the plugin can be downloaded from GitHub. The plugin's configuration will be saved.
 		Magnifying Glass: Checking GitHub to see if the plugin can be located. The plugin's configuration will be saved.
 		Warning Symbol: Either you are not connected to the internet or no repository exists for the plugin; check your spelling. The plugin's configuration will be saved.
-		X: The Author or Repository is missing. The plugin's configuration cannot be saved.
+		X: The Author or Repository field is empty. The plugin's configuration cannot be saved.
 		Blank: Author and Repository have not been filled in. The plugin's configuration cannot be saved.
 	Delete: Remove a plugin from the list.
 
@@ -148,12 +148,12 @@ Buttons:
 Launch Without Plugin Manager
 =============================
 Follow these steps to have SEPL automatically load plugins every time Space Engineers is launched.
-In steam library, right click on Space Engineers.
-Left click on properties.
+In steam library, right click on Space Engineers
+Left click on properties
 Left click on "SET LAUNCH OPTIONS..."
-If the text box is not empty, leave a space.
-Add "-plugin PluginLoader.dll" without the quotes.
-Left click "OK".
+If the text box is not empty, leave a space
+Add "-plugin PluginLoader.dll" without the quotes
+Left click "OK"
 Left click "CLOSE"
 
 See the readme for more information</value>

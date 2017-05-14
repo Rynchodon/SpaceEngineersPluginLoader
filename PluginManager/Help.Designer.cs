@@ -51,7 +51,7 @@
 			this.ClientSize = new System.Drawing.Size(869, 521);
 			this.Controls.Add(this.textBoxHelp);
 			this.Name = "Help";
-			this.Text = "Help";
+			this.Text = "SEPL Help";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

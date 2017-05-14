@@ -82,7 +82,6 @@ namespace Rynchodon.PluginManager
 		private void RowAdded(int rowIndex)
 		{
 			var cells = PluginConfig.Rows[rowIndex].Cells;
-			cells[ColumnEnabled.Index].Value = true;
 			cells[ColumnStatus.Index].Value = Properties.Resources.blank;
 			cells[ColumnDelete.Index].Value = Properties.Resources.blank;
 
@@ -150,7 +149,7 @@ namespace Rynchodon.PluginManager
 					statusCell.Value = Properties.Resources.connection_failed;
 					break;
 				case Status.Malformed:
-					statusCell.ToolTipText = "The Author or Repository is missing.";
+					statusCell.ToolTipText = "The Author or Repository field is empty.";
 					statusCell.Value = Properties.Resources.malformed;
 					break;
 				case Status.Searching:
@@ -502,6 +501,7 @@ namespace Rynchodon.PluginManager
 			this.Controls.Add(this.Launch);
 			this.Controls.Add(this.PluginConfig);
 			this.Name = "Manager";
+			this.Text = "Space Engineers Plugin Loader";
 			((System.ComponentModel.ISupportInitialize)(this.PluginConfig)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxPathToGit)).EndInit();
 			this.ResumeLayout(false);

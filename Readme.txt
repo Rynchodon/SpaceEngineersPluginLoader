@@ -5,7 +5,7 @@ Space Engineers Plugin Loader is an application for downloading plugins for Spac
 
 Install
 =======
-Download SEPL_win64_installer.zip, open it and run SetupSEPL.msi
+Download SEPL_win64_installer.zip, open it, and run SetupSEPL.msi
 A shortcut to Plugin Manager will be placed on your desktop and in the start menu.
 
 
@@ -23,7 +23,7 @@ Plugins are defined in the grid portion at the top:
 		Checkmark: The Author and Repository are correct and the plugin can be downloaded from GitHub. The plugin's configuration will be saved.
 		Magnifying Glass: Checking GitHub to see if the plugin can be located. The plugin's configuration will be saved.
 		Warning Symbol: Either you are not connected to the internet or no repository exists for the plugin; check your spelling. The plugin's configuration will be saved.
-		X: The Author or Repository is missing. The plugin's configuration cannot be saved.
+		X: The Author or Repository field is empty. The plugin's configuration cannot be saved.
 		Blank: Author and Repository have not been filled in. The plugin's configuration cannot be saved.
 	Delete: Remove a plugin from the list.
 
@@ -39,19 +39,19 @@ Buttons:
 Launch Without Plugin Manager
 =============================
 Follow these steps to have SEPL automatically load plugins every time Space Engineers is launched.
-In steam library, right click on Space Engineers.
-Left click on properties.
+In steam library, right click on Space Engineers
+Left click on properties
 Left click on "SET LAUNCH OPTIONS..."
-If the text box is not empty, leave a space.
-Add "-plugin PluginLoader.dll" without the quotes.
-Left click "OK".
+If the text box is not empty, leave a space
+Add "-plugin PluginLoader.dll" without the quotes
+Left click "OK"
 Left click "CLOSE"
 
 
 Plugin Authors
 ==============
 Plugins can be added to SEPL locally, so they can be tested, and they can be published to GitHub.
-SEPL decides which release to download from its tag name. For this reason tag name cannot be specified while publishing a plugin through SEPL.
+SEPL decides which release to download from its tag name. For this reason, tag name cannot be specified while publishing a plugin through SEPL.
 
 Plugins are configured through the use of a json or an xml file which is then passed to PluginManager.exe.
 This guide assumes you are familiar with either json or xml files.
@@ -82,7 +82,7 @@ In the build file:
 		repository: GitHub repository of required plugin.
 	version: The mod version and the version of SE it was compiled against.
 		If Major, Minor, Build, and Revision are all zero, SEPL will get the version number from assemblies included in the plugin.
-		If SeVersion is zero, SEPL will get the SE version from the currently downloaded copy of Space Engineers. Is SeVersion is less than zero, SEPL will consider the plugin compatible with every version of Space Engineers.
+		If SeVersion is zero, SEPL will get the SE version from the currently downloaded copy of Space Engineers. If SeVersion is less than zero, SEPL will consider the plugin compatible with every version of Space Engineers.
 
 You will need a GitHub OAuth Token to publish your plugin.
 OAuth Token can be specified in the command line or by the environment variable oAuthToken.
