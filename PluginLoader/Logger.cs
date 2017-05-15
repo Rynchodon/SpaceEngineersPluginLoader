@@ -9,6 +9,9 @@ namespace Rynchodon.PluginLoader
 	public static class Logger
 	{
 
+		[Flags]
+		public enum LogTo { None = 0, File = 1, StandardOut = 2, StandardError = 4 }
+
 		private static readonly StreamWriter _streamWriter;
 
 		static Logger()
@@ -47,7 +50,7 @@ namespace Rynchodon.PluginLoader
 				}
 		}
 
-		public static void WriteLine(string line = null, [CallerFilePath] string callerPath = null, [CallerMemberName] string memberName = null, [CallerLineNumber]int lineNumber = -1)
+		public static void WriteLine(string line = null, [CallerFilePath] string callerPath = null, [CallerMemberName] string memberName = null, [CallerLineNumber]int lineNumber = -1, LogTo logTo = LogTo.File)
 		{
 			callerPath = Path.GetFileNameWithoutExtension(callerPath);
 			if (line == null)
@@ -63,8 +66,18 @@ namespace Rynchodon.PluginLoader
 					return;
 				}
 			}
-			_streamWriter.WriteLine('{' + DateTime.Now.ToString("HH:mm:ss.fff") + "}{" + callerPath + "}{" + memberName + "}{" + lineNumber + "}{" + line + '}');
-			_streamWriter.Flush();
+
+			string toLog = '{' + DateTime.Now.ToString("HH:mm:ss.fff") + "}{" + callerPath + "}{" + memberName + "}{" + lineNumber + "}{" + line + '}';
+
+			if ((logTo & LogTo.File) != 0)
+			{
+				_streamWriter.WriteLine('{' + DateTime.Now.ToString("HH:mm:ss.fff") + "}{" + callerPath + "}{" + memberName + "}{" + lineNumber + "}{" + line + '}');
+				_streamWriter.Flush();
+			}
+			if ((logTo & LogTo.StandardOut) != 0)
+				Console.Out.WriteLine(logTo);
+			if ((logTo & LogTo.StandardError) != 0)
+				Console.Error.WriteLine(logTo);
 		}
 
 	}

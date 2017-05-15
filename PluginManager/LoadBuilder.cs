@@ -22,7 +22,7 @@ namespace Rynchodon.PluginManager
 			}
 			catch (Exception ex)
 			{
-				Logger.WriteLine(ex.ToString());
+				Logger.WriteLine(ex.ToString(), logTo: Logger.LogTo.File | Logger.LogTo.StandardError);
 				throw;
 			}
 		}
@@ -41,7 +41,7 @@ namespace Rynchodon.PluginManager
 				release = new PluginBuilder.Release(),
 				requires = new PluginName[] { new PluginName("OtherAuthor", "OtherRepo") }
 			};
-			Logger.WriteLine("Creating templates at " + Path.GetFullPath("."));
+			Logger.WriteLine("Creating templates at " + Path.GetFullPath("."), logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 			WriteFile("template.json", true, template);
 			WriteFile("template.xml", false, template);
 		}
@@ -59,7 +59,7 @@ namespace Rynchodon.PluginManager
 
 			if (builderFilePath == null)
 			{
-				Logger.WriteLine("File path to " + typeof(PluginBuilder).Name + " file not found");
+				Logger.WriteLine("File path to " + typeof(PluginBuilder).Name + " file not found", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				return;
 			}
 
@@ -72,21 +72,21 @@ namespace Rynchodon.PluginManager
 				throw new NullReferenceException("no idea what happened");
 
 			if (builder.oAuthToken != null)
-				Logger.WriteLine("WARNING: OAuth Token specified in builder file. Be sure to keep your OAuth Token secret!");
+				Logger.WriteLine("WARNING: OAuth Token specified in builder file. Be sure to keep your OAuth Token secret!", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 
 			if (!AmmendPluginBuilder(args, builderFilePath, builder))
 				return;
 
 			if (builder.files == null || builder.files.Length == 0)
 			{
-				Logger.WriteLine("No files to include in plugin");
+				Logger.WriteLine("No files to include in plugin", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				return;
 			}
 
 			if (!ResolveFilePath(builder, builderFilePath))
 				return;
 
-			Logger.WriteLine("Command line accepted.");
+			Logger.WriteLine("Command line accepted.", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 			Loader.AddLocallyCompiledPlugin(builder);
 		}
 
@@ -105,14 +105,14 @@ namespace Rynchodon.PluginManager
 					if (split.Length != 2)
 					{
 						success = false;
-						Logger.WriteLine("Invalid argument: " + a);
+						Logger.WriteLine("Invalid argument: " + a, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 						continue;
 					}
 					FieldInfo field = typeof(PluginBuilder).GetField(split[0]);
 					if (field == null)
 					{
 						success = false;
-						Logger.WriteLine("Invalid argument: " + a + ", " + split[0] + " is not a field");
+						Logger.WriteLine("Invalid argument: " + a + ", " + split[0] + " is not a field", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 						continue;
 					}
 					object o;
@@ -120,11 +120,11 @@ namespace Rynchodon.PluginManager
 					catch
 					{
 						success = false;
-						Logger.WriteLine("Invalid argument: " + a + ", cannot convert " + split[1] + " to " + field.FieldType);
+						Logger.WriteLine("Invalid argument: " + a + ", cannot convert " + split[1] + " to " + field.FieldType, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 						continue;
 					}
 					field.SetValue(builder, o);
-					Logger.WriteLine("Set " + a);
+					Logger.WriteLine("Set " + a, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				}
 
 			return success;
@@ -153,9 +153,9 @@ namespace Rynchodon.PluginManager
 					else
 					{
 						success = false;
-						Logger.WriteLine("Could not locate the file: " + Path.GetFileName(file.source));
-						Logger.WriteLine("\tNot at " + Path.GetFullPath(file.source));
-						Logger.WriteLine("\tNot at " + Path.GetFullPath(fromBuildDir));
+						Logger.WriteLine("Could not locate the file: " + Path.GetFileName(file.source), logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+						Logger.WriteLine("\tNot at " + Path.GetFullPath(file.source), logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+						Logger.WriteLine("\tNot at " + Path.GetFullPath(fromBuildDir), logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 					}
 				}
 			}
@@ -172,20 +172,20 @@ namespace Rynchodon.PluginManager
 			{
 				if (TryDeserialize(filePath, true, out builder, out jsonExcept))
 					return true;
-				Logger.WriteLine("Failed to deserialize as json: " + filePath);
-				Logger.WriteLine();
-				Logger.WriteLine("json exception: " + jsonExcept);
-				Logger.WriteLine();
+				Logger.WriteLine("Failed to deserialize as json: " + filePath, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine("json exception: " + jsonExcept, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				return false;
 			}
 			else if (extension == ".xml")
 			{
 				if (TryDeserialize(filePath, false, out builder, out xmlExcept))
 					return true;
-				Logger.WriteLine("Failed to deserialize as xml: " + filePath);
-				Logger.WriteLine();
-				Logger.WriteLine("xml exception: " + xmlExcept);
-				Logger.WriteLine();
+				Logger.WriteLine("Failed to deserialize as xml: " + filePath, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine("xml exception: " + xmlExcept, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				return false;
 			}
 			else
@@ -194,12 +194,12 @@ namespace Rynchodon.PluginManager
 					return true;
 				if (TryDeserialize(filePath, false, out builder, out xmlExcept))
 					return true;
-				Logger.WriteLine("Failed to deserialize as json or xml: " + filePath);
-				Logger.WriteLine();
-				Logger.WriteLine("json exception: " + jsonExcept);
-				Logger.WriteLine();
-				Logger.WriteLine("xml exception: " + xmlExcept);
-				Logger.WriteLine();
+				Logger.WriteLine("Failed to deserialize as json or xml: " + filePath, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine("json exception: " + jsonExcept, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine("xml exception: " + xmlExcept, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+				Logger.WriteLine(logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				return false;
 			}
 		}
