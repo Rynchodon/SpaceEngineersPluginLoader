@@ -57,6 +57,9 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationIcon>sepl-icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -130,6 +133,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\blank.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="sepl-icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

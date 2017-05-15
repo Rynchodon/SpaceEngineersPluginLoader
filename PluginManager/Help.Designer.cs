@@ -50,6 +50,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(869, 521);
 			this.Controls.Add(this.textBoxHelp);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "Help";
 			this.Text = "SEPL Help";
 			this.ResumeLayout(false);
