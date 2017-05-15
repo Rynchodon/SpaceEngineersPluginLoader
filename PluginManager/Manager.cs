@@ -246,11 +246,9 @@ namespace Rynchodon.PluginManager
 
 		private void PluginConfig_CellEndEdit(object sender, DataGridViewCellEventArgs e)
 		{
+			_needsSave = true;
 			if (e.ColumnIndex == ColumnAuthor.Index || e.ColumnIndex == ColumnRepo.Index)
-			{
-				_needsSave = true;
 				CheckRow(e.RowIndex);
-			}
 		}
 
 		private void PluginConfig_KeyPress(object sender, KeyPressEventArgs e)
