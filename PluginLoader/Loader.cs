@@ -314,19 +314,23 @@ namespace Rynchodon.PluginLoader
 			_downProgress.Current = 0;
 
 			Logger.WriteLine("Updating plugins");
-			UpdatePlugin(_data.EnabledGitHubConfig());
+			HashSet<PluginName> updated = new HashSet<PluginName>();
+			UpdatePlugin(_data.EnabledGitHubConfig(), updated);
 		}
 
-		private void UpdatePlugin(IEnumerable<PluginConfig> pluginConfig)
+		private void UpdatePlugin(IEnumerable<PluginConfig> pluginConfig, HashSet<PluginName> updated)
 		{
 			_downProgress.Total += pluginConfig.Count();
 			foreach (PluginConfig config in pluginConfig)
-			{
-				++_downProgress.Current;
-				Plugin current = UpdatePlugin(config);
-				if (current.requiredPlugins != null)
-					UpdatePlugin(current.requiredPlugins.Select(name => new PluginConfig(name, false)));
-			}
+				if (updated.Add(config.name))
+				{
+					++_downProgress.Current;
+					Plugin current = UpdatePlugin(config);
+					if (current.requiredPlugins != null)
+						UpdatePlugin(current.requiredPlugins.Select(name => new PluginConfig(name, false)), updated);
+				}
+				else
+					--_downProgress.Total;
 		}
 
 		private Plugin UpdatePlugin(PluginConfig config)
@@ -366,6 +370,8 @@ namespace Rynchodon.PluginLoader
 			foreach (PluginConfig config in _data.EnabledGitHubConfig())
 				if (_data.TryGetDownloaded(config.name, out plugin))
 					LoadPlugin(plugin, pluginInterface, loaded);
+				else
+					Logger.WriteLine(config.name + " was not downloaded, cannot be loaded");
 
 			return pluginInterface.ToArray();
 		}
@@ -389,7 +395,7 @@ namespace Rynchodon.PluginLoader
 					Plugin required;
 					if (!_data.TryGetDownloaded(name, out required))
 					{
-						Logger.WriteLine("ERROR: Failed to load " + plugin.name.fullName + ", missing required plugin: " + name.fullName);
+						Logger.WriteLine("ERROR: Failed to load " + plugin.name.fullName + ", required plugin was not downloaded: " + name.fullName);
 						return false;
 					}
 					if (!LoadPlugin(required, pluginInterface, loaded, depth + 1))
@@ -397,6 +403,7 @@ namespace Rynchodon.PluginLoader
 						Logger.WriteLine("ERROR: Failed to load " + plugin.name.fullName + ", failed to load required plugin: " + name.fullName);
 						return false;
 					}
+					Logger.WriteLine("Required plugin has been loaded: " + name);
 				}
 
 			if (!loaded.Add(plugin.name))
@@ -416,6 +423,8 @@ namespace Rynchodon.PluginLoader
 
 			plugin.version = builder.version;
 			Logger.WriteLine("plugin: " + name.fullName + ", compiled version: " + plugin.version);
+
+			plugin.requiredPlugins = builder.requires;
 
 			Directory.CreateDirectory(plugin.directory);
 

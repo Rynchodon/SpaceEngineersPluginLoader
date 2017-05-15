@@ -22,10 +22,6 @@ namespace Rynchodon.PluginLoader
 		/// </summary>
 		private readonly Dictionary<PluginName, PluginConfig> _gitHubConfig = new Dictionary<PluginName, PluginConfig>();
 		/// <summary>
-		/// Required plugins that are not in <see cref="_gitHubConfig"/>.
-		/// </summary>
-		private readonly HashSet<PluginName> _required = new HashSet<PluginName>();
-		/// <summary>
 		/// Plugins that have been downloaded.
 		/// </summary>
 		private readonly Dictionary<PluginName, Plugin> _downloaded = new Dictionary<PluginName, Plugin>();
@@ -90,17 +86,6 @@ namespace Rynchodon.PluginLoader
 			_needsSave = true;
 		}
 
-		/// <summary>
-		/// Add a required plugin, if it is not already going to be downloaded.
-		/// </summary>
-		/// <param name="name">The required plugin.</param>
-		/// <returns>True if the plugin was added. False if it is in config or already required.</returns>
-		public bool Require(PluginName name)
-		{
-			_needsSave = true;
-			return !_gitHubConfig.ContainsKey(name) && _required.Add(name);
-		}
-
 		public bool TryGetDownloaded(PluginName name, out Plugin plugin)
 		{
 			return _downloaded.TryGetValue(name, out plugin);
@@ -109,7 +94,6 @@ namespace Rynchodon.PluginLoader
 		public void Load()
 		{
 			_gitHubConfig.Clear();
-			_required.Clear();
 			_downloaded.Clear();
 
 			string filePath = GetFilePath();
