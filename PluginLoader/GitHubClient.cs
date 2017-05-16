@@ -244,11 +244,12 @@ namespace Rynchodon.PluginLoader
 			}
 		}
 
-		internal void Publish(Plugin plugin, PluginBuilder.Release releaseBuilder)
+		internal void Publish(Plugin plugin, PluginBuilder pluginBuilder)
 		{
 			if (!HasOAuthToken)
 				throw new ArgumentException("Need oAuthToken");
 
+			PluginBuilder.Release releaseBuilder = pluginBuilder.release;
 			CreateRelease release = new CreateRelease(plugin.version, true);
 			release.target_commitish = releaseBuilder.target_commitish;
 			release.name = releaseBuilder.name;
@@ -256,8 +257,8 @@ namespace Rynchodon.PluginLoader
 			release.prerelease = releaseBuilder.prerelease;
 
 			string zipFileName;
-			if (releaseBuilder.zipFileName != null)
-				zipFileName = Path.GetFileName(releaseBuilder.zipFileName);
+			if (pluginBuilder.zipFileName != null)
+				zipFileName = Path.GetFileName(pluginBuilder.zipFileName);
 			else
 				zipFileName = plugin.name.repository;
 

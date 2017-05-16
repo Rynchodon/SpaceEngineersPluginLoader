@@ -28,8 +28,7 @@
     "draft": true,
     "name": null,
     "prerelease": false,
-    "target_commitish": null,
-    "zipFileName": "SEPL_AutoUpdateAssets.zip"
+    "target_commitish": null
   },
   "repository": "SpaceEngineersPluginLoader",
   "requires": null,
@@ -39,5 +38,6 @@
     "Minor": 0,
     "Revision": 0,
     "SeVersion": -1
-  }
+  },
+  "zipFileName": "SEPL_AutoUpdateAssets.zip"
 }

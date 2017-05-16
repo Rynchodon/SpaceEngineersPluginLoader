@@ -21,7 +21,6 @@
     <name i:nil="true" />
     <prerelease>false</prerelease>
     <target_commitish i:nil="true" />
-    <zipFileName i:nil="true" />
   </release>
   <repository>Repo</repository>
   <requires>
@@ -37,4 +36,5 @@
     <Revision>0</Revision>
     <SeVersion>0</SeVersion>
   </version>
+  <zipFileName i:nil="true" />
 </PluginBuilder>

@@ -33,7 +33,7 @@ namespace Rynchodon.PluginLoader
 		public sealed class Release
 		{
 			[DataMember]
-			public string target_commitish, name, body, zipFileName;
+			public string target_commitish, name, body;
 			[DataMember]
 			public bool draft = true, prerelease;
 		}
@@ -65,6 +65,8 @@ namespace Rynchodon.PluginLoader
 		/// </summary>
 		[DataMember]
 		public bool publish;
+		[DataMember]
+		public string zipFileName;
 		/// <summary>
 		/// GitHub oAuthToken, needed to publish a file. Keep this out of version control!
 		/// </summary>

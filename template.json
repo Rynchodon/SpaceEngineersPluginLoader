@@ -20,8 +20,7 @@
     "draft": true,
     "name": null,
     "prerelease": false,
-    "target_commitish": null,
-    "zipFileName": null
+    "target_commitish": null
   },
   "repository": "Repo",
   "requires": [
@@ -36,5 +35,6 @@
     "Minor": 0,
     "Revision": 0,
     "SeVersion": 0
-  }
+  },
+  "zipFileName": null
 }

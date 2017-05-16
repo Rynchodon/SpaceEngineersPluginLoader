@@ -137,7 +137,7 @@ namespace Rynchodon.PluginLoader
 						plugin.version.SeVersion = 0;
 						_instance._data.Save(true);
 					}
-				client.Publish(plugin, builder.release);
+				client.Publish(plugin, builder);
 			}
 		}
 
