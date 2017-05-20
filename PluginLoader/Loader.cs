@@ -198,8 +198,8 @@ namespace Rynchodon.PluginLoader
 			_instance = this;
 			_directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-			if (!File.Exists(_directory + "\\SpaceEngineers.exe") && !File.Exists(_directory + "\\SpaceEngineersDedicated.exe"))
-				throw new Exception("Not in Space Engineers folder");
+			if (!File.Exists(PathExtensions.Combine(_directory, "SpaceEngineers.exe")))
+				throw new Exception("Not in Space Engineers folder: " + _directory);
 
 			_directory = PathExtensions.Combine(Path.GetDirectoryName(_directory), SeplRepo);
 			Directory.CreateDirectory(_directory);
