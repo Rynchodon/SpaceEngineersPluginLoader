@@ -67,6 +67,7 @@ namespace Rynchodon.PluginLoader
 			switch (result)
 			{
 				case CheckResult.Passed:
+					Logger.WriteLine("Branch is clean");
 					break;
 				case CheckResult.Ignored:
 					Logger.WriteLine("WARNING: commitish will be incorrect");
@@ -81,6 +82,7 @@ namespace Rynchodon.PluginLoader
 			switch (result)
 			{
 				case CheckResult.Passed:
+					Logger.WriteLine("Branch is up to date");
 					break;
 				case CheckResult.Ignored:
 					Logger.WriteLine("WARNING: commitish will be incorrect");
@@ -95,6 +97,7 @@ namespace Rynchodon.PluginLoader
 			switch (result)
 			{
 				case CheckResult.Passed:
+					Logger.WriteLine("Branch is " + masterBranch);
 					break;
 				case CheckResult.Ignored:
 					UpdateCommitish();
