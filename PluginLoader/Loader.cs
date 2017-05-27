@@ -120,7 +120,7 @@ namespace Rynchodon.PluginLoader
 			_instance._task.Wait();
 			Plugin plugin = _instance.AddLocallyCompiled(builder);
 
-			if (builder.publish && GitChecks.Check(builder.files.First().source, _instance._data.PathToGit))
+			if (builder.publish && GitChecks.Check(builder, _instance._data.PathToGit))
 			{
 				Release[] releases = client.GetReleases();
 				if (releases == null)

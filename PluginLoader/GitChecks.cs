@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Rynchodon.PluginLoader
@@ -11,24 +12,31 @@ namespace Rynchodon.PluginLoader
 	internal sealed class GitChecks
 	{
 
+		private enum CheckResult : byte
+		{
+			None, Passed, Failed, Ignored
+		}
+
 		/// <summary>
 		/// Tests for being on the default branch, the branch being up-to-date, and the branch not being dirty.
 		/// </summary>
 		/// <param name="directory">Any directory that is part of the repository</param>
 		/// <param name="pathToGit">Path to git.exe</param>
 		/// <returns>True if all the tests were passed or the user skipped them.</returns>
-		public static bool Check(string directory, string pathToGit)
+		public static bool Check(PluginBuilder builder, string pathToGit)
 		{
-			return (new GitChecks(directory, pathToGit)).Check();
+			return (new GitChecks(builder, pathToGit)).Check();
 		}
 
+		private readonly PluginBuilder _builder;
 		private readonly string _pathToGit, _repoDirectory;
 
-		private GitChecks(string directory, string pathToGit)
+		private GitChecks(PluginBuilder builder, string pathToGit)
 		{
+			this._builder = builder;
 			this._pathToGit = pathToGit;
 
-			foreach (string path in PathExtensions.PathsToRoot(directory))
+			foreach (string path in PathExtensions.PathsToRoot(builder.files.First().source))
 			{
 				string gitDirectory = PathExtensions.Combine(path, ".git");
 				if (Directory.Exists(gitDirectory))
@@ -53,37 +61,93 @@ namespace Rynchodon.PluginLoader
 				return true;
 			}
 
-			string _masterBranch = GetMasterBranch();
+			string masterBranch = GetMasterBranch();
 
-			Func<bool>[] tests = new Func<bool>[] {
-				() => GetStatus().Contains("On branch " + _masterBranch),
-				() => GetStatus().Contains("up-to-date"),
-				() => string.IsNullOrWhiteSpace(GetStatus(true)) };
+			CheckResult result = Check(() => string.IsNullOrWhiteSpace(GetStatus(true)), "The branch is dirty");
+			switch (result)
+			{
+				case CheckResult.Passed:
+					break;
+				case CheckResult.Ignored:
+					Logger.WriteLine("WARNING: commitish will be incorrect");
+					return true;
+				case CheckResult.Failed:
+					return false;
+				default:
+					throw new Exception("Bad case: " + result);
+			}
 
-			string[] failMessage = new string[] {
-				"Not on " + _masterBranch + " branch",
-				"Branch not up to date",
-				"The branch is dirty" };
+			result = Check(() => GetStatus().Contains("up-to-date"), "Branch not up to date");
+			switch (result)
+			{
+				case CheckResult.Passed:
+					break;
+				case CheckResult.Ignored:
+					Logger.WriteLine("WARNING: commitish will be incorrect");
+					return true;
+				case CheckResult.Failed:
+					return false;
+				default:
+					throw new Exception("Bad case: " + result);
+			}
 
-			for (int i = 0; i < tests.Length; ++i)
-				while (!tests[i].Invoke())
-				{
-					DialogResult result = MessageBox.Show(failMessage[i], "Git not ready", MessageBoxButtons.AbortRetryIgnore);
-					Logger.WriteLine(failMessage[i] + " - " + result);
-					switch (result)
-					{
-						case DialogResult.Abort:
-							return false;
-						case DialogResult.Retry:
-							break;
-						case DialogResult.Ignore:
-							return true;
-						default:
-							throw new Exception("Bad result: " + result);
-					}
-				}
+			result = Check(() => GetStatus().Contains("On branch " + masterBranch), "Not on " + masterBranch + " branch\nIgnore will update commit target");
+			switch (result)
+			{
+				case CheckResult.Passed:
+					break;
+				case CheckResult.Ignored:
+					UpdateCommitish();
+					return true;
+				case CheckResult.Failed:
+					return false;
+				default:
+					throw new Exception("Bad case: " + result);
+			}
 
 			return true;
+		}
+
+		private CheckResult Check(Func<bool> test, string failMessage)
+		{
+			if (test.Invoke())
+				return CheckResult.Passed;
+
+			DialogResult result = MessageBox.Show(failMessage, "Git: not ready", MessageBoxButtons.AbortRetryIgnore);
+			Logger.WriteLine(failMessage + " - " + result);
+			switch (result)
+			{
+				case DialogResult.Abort:
+					return CheckResult.Failed;
+				case DialogResult.Retry:
+					return Check(test, failMessage);
+				case DialogResult.Ignore:
+					return CheckResult.Ignored;
+				default:
+					throw new Exception("Bad result: " + result);
+			}
+		}
+
+		/// <summary>
+		/// Get the target commit from the head of the current branch.
+		/// </summary>
+		private void UpdateCommitish()
+		{
+			string headPath = PathExtensions.Combine(_repoDirectory, ".git", "HEAD");
+			string head;
+			using (StreamReader reader = new StreamReader(headPath))
+				head = reader.ReadLine();
+
+			const string refstring = "ref: ";
+			if (head.StartsWith(refstring))
+			{
+				headPath = PathExtensions.Combine(_repoDirectory, ".git", head.Substring(refstring.Length));
+				using (StreamReader reader = new StreamReader(headPath))
+					head = reader.ReadLine();
+			}
+
+			Logger.WriteLine("Setting target to commit to \"" + head + '"');
+			_builder.release.target_commitish = head;
 		}
 
 		private string GetMasterBranch()
