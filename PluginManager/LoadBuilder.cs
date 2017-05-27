@@ -108,11 +108,23 @@ namespace Rynchodon.PluginManager
 						Logger.WriteLine("Invalid argument: " + a, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 						continue;
 					}
-					FieldInfo field = typeof(PluginBuilder).GetField(split[0]);
+					string fieldName = split[0];
+					FieldInfo field = typeof(PluginBuilder).GetField(fieldName);
+					object setObject = builder;
+					if (field == null)
+					{
+						field = typeof(PluginBuilder.Release).GetField(fieldName);
+						setObject = builder.release;
+					}
+					if (field == null)
+					{
+						field = typeof(PluginLoader.Version).GetField(fieldName);
+						setObject = builder.version;
+					}
 					if (field == null)
 					{
 						success = false;
-						Logger.WriteLine("Invalid argument: " + a + ", " + split[0] + " is not a field", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
+						Logger.WriteLine("Invalid argument: " + a + ", " + fieldName + " is not a field", logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 						continue;
 					}
 					object o;
@@ -123,7 +135,7 @@ namespace Rynchodon.PluginManager
 						Logger.WriteLine("Invalid argument: " + a + ", cannot convert " + split[1] + " to " + field.FieldType, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 						continue;
 					}
-					field.SetValue(builder, o);
+					field.SetValue(setObject, o);
 					Logger.WriteLine("Set " + a, logTo: Logger.LogTo.File | Logger.LogTo.StandardOut);
 				}
 

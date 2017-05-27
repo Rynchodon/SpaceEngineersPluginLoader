@@ -88,15 +88,15 @@ In the build file:
 You will need a GitHub OAuth Token to publish your plugin.
 OAuth Token can be specified in the command line or by the environment variable oAuthToken.
 
-These options that can be specified on the command line: author, oAuthToken, publish, repository.
+The options that can be specified on the command line are: author, oAuthToken, publish, repository, zipFileName, body, draft, name, prerelease, target_commitish, Build, Major, Minor, Revision, and SeVersion.
 	Command line options override the options from the build file.
-	Options are specified "name:value"
+	Options are specified "name=value"
 
 To add/publish your plugin execute PluginManger.exe with the path to your build file as an argument as well as any additional options.
 
 For example:
 	PluginManger.exe build.json
-	PluginManger.exe build.xml publish:true oAuthToken:12345
+	PluginManger.exe build.xml publish=true oAuthToken=12345
 
 If path to git was set with Plugin Manger's GUI, SEPL will warn if you attempt to publish from the wrong branch, a dirty branch, or one with unsynced commits.
 
