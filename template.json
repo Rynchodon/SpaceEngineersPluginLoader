@@ -17,6 +17,10 @@
   "publish": false,
   "release": {
     "body": null,
+    "body_lines": [
+      "First line",
+      "Second line"
+    ],
     "draft": true,
     "name": null,
     "prerelease": false,

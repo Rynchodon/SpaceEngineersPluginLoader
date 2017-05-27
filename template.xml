@@ -1,4 +1,4 @@
-﻿<PluginBuilder xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/Rynchodon.PluginLoader">
+﻿<PluginBuilder xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
   <author>Author</author>
   <files>
     <PluginBuilder.File>
@@ -17,6 +17,10 @@
   <publish>false</publish>
   <release>
     <body i:nil="true" />
+    <body_lines xmlns:d3p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+      <d3p1:string>First line</d3p1:string>
+      <d3p1:string>Second line</d3p1:string>
+    </body_lines>
     <draft>true</draft>
     <name i:nil="true" />
     <prerelease>false</prerelease>

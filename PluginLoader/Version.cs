@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Rynchodon.PluginLoader
 {
-	[DataContract]
+	[DataContract(Namespace = "")]
 	public struct Version : IComparable<Version>
 	{
 		[DataMember]

@@ -72,6 +72,8 @@ namespace Rynchodon.PluginLoader
 			request.Method = "POST";
 			request.Headers.Add("Authorization", "token " + _oAuthToken);
 
+			Logger.WriteLine("POST release");
+
 			using (Stream requestStream = request.GetRequestStream())
 				create.WriteCreateJson(requestStream);
 			DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Release));
@@ -253,7 +255,7 @@ namespace Rynchodon.PluginLoader
 			CreateRelease release = new CreateRelease(plugin.version, true);
 			release.target_commitish = releaseBuilder.target_commitish;
 			release.name = releaseBuilder.name;
-			release.body = releaseBuilder.body;
+			release.body = releaseBuilder.GetBody();
 			release.prerelease = releaseBuilder.prerelease;
 
 			string zipFileName;

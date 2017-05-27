@@ -5,10 +5,10 @@ namespace Rynchodon.PluginLoader
 	/// <summary>
 	/// Plugin info deserialized from file and ammended by the command line.
 	/// </summary>
-	[DataContract]
+	[DataContract (Namespace = "")]
 	public sealed class PluginBuilder
 	{
-		[DataContract]
+		[DataContract(Namespace = "")]
 		public sealed class File
 		{
 			/// <summary>The current path to the file, it can be absolute, relative to CWD, or relative to builder file.</summary>
@@ -29,13 +29,33 @@ namespace Rynchodon.PluginLoader
 			}
 		}
 
-		[DataContract]
+		[DataContract(Namespace = "")]
 		public sealed class Release
 		{
 			[DataMember]
 			public string target_commitish, name, body;
+			/// <summary>Lines that are appended to body, separated by new line character.</summary>
+			[DataMember]
+			public string[] body_lines;
 			[DataMember]
 			public bool draft = true, prerelease;
+
+			/// <summary>
+			/// Concat body and body_lines, separated by new line.
+			/// </summary>
+			/// <returns>Concat body.</returns>
+			public string GetBody()
+			{
+				const string newline = "\\n";
+
+				if (body_lines == null)
+					return body;
+
+				if (body == null)
+					return string.Join(newline, body_lines);
+
+				return string.Join(newline, body, body_lines);
+			}
 		}
 
 		/// <summary>Plugins that are required to be loaded before this one.</summary>

@@ -22,7 +22,7 @@ namespace Rynchodon.PluginLoader
 		}
 	}
 
-	[DataContract]
+	[DataContract(Namespace = "")]
 	public struct PluginName : IComparable<PluginName>, IEquatable<PluginName>
 	{
 		[DataMember]

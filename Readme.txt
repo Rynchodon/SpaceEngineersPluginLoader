@@ -70,12 +70,12 @@ In the build file:
 		targetFolder(Optional): The target sub-folder for the file.
 	publish: Upload the plugin to GitHub.
 	release: Information for GitHub release
-		body(Optional): The body of the release.
+		body(Optional): The body of the release. Use "\\n" for newline.
+		body_lines(Optional): Strings that will be appended to body as lines.
 		draft: Mark the release as incomplete.
 		name(Optional): The name of the release.
 		prerelease: Mark the release as not production ready.
 		target_commitish(Optional): Commit to target with the release. Defaults to head of master branch.
-		zipFileName(Optional): Name of the assets' zip file. Defaults to plugin's repository's name.
 	repository: GitHub repository for the plugin.
 	requires(Optional): Array of plugins that must be loaded before this plugin
 		author: GitHub author of required plugin.
@@ -83,6 +83,7 @@ In the build file:
 	version: The mod version and the version of SE it was compiled against.
 		If Major, Minor, Build, and Revision are all zero, SEPL will get the version number from assemblies included in the plugin.
 		If SeVersion is zero, SEPL will get the SE version from the currently downloaded copy of Space Engineers. If SeVersion is less than zero, SEPL will consider the plugin compatible with every version of Space Engineers.
+	zipFileName(Optional): Name of the assets' zip file. Defaults to plugin's repository's name.
 
 You will need a GitHub OAuth Token to publish your plugin.
 OAuth Token can be specified in the command line or by the environment variable oAuthToken.
