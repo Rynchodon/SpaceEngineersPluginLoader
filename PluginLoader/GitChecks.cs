@@ -12,6 +12,9 @@ namespace Rynchodon.PluginLoader
 	internal sealed class GitChecks
 	{
 
+		private const string IncorrectCommitTarget = "WARNING: Commit target does not match HEAD";
+		private const string PromptCaption = "Git check failed";
+		
 		private enum CheckResult : byte
 		{
 			None, Passed, Failed, Ignored
@@ -61,16 +64,16 @@ namespace Rynchodon.PluginLoader
 				return true;
 			}
 
-			string masterBranch = GetMasterBranch();
+			string masterBranch = GitMasterBranch();
 
-			CheckResult result = Check(() => string.IsNullOrWhiteSpace(GetStatus(true)), "The branch is dirty");
+			CheckResult result = Check(() => string.IsNullOrWhiteSpace(GitStatus(true)), "The branch is dirty");
 			switch (result)
 			{
 				case CheckResult.Passed:
 					Logger.WriteLine("Branch is clean");
 					break;
 				case CheckResult.Ignored:
-					Logger.WriteLine("WARNING: commitish will be incorrect");
+					Logger.WriteLine(IncorrectCommitTarget);
 					return true;
 				case CheckResult.Failed:
 					return false;
@@ -78,14 +81,14 @@ namespace Rynchodon.PluginLoader
 					throw new Exception("Bad case: " + result);
 			}
 
-			result = Check(() => GetStatus().Contains("up-to-date"), "Branch not up to date");
+			result = Check(() => GitStatus().Contains("up-to-date"), "Branch not up to date");
 			switch (result)
 			{
 				case CheckResult.Passed:
 					Logger.WriteLine("Branch is up to date");
 					break;
 				case CheckResult.Ignored:
-					Logger.WriteLine("WARNING: commitish will be incorrect");
+					Logger.WriteLine(IncorrectCommitTarget);
 					return true;
 				case CheckResult.Failed:
 					return false;
@@ -93,22 +96,54 @@ namespace Rynchodon.PluginLoader
 					throw new Exception("Bad case: " + result);
 			}
 
-			result = Check(() => GetStatus().Contains("On branch " + masterBranch), "Not on " + masterBranch + " branch\nIgnore will update commit target");
-			switch (result)
+			string target_commit = GitRevParse(_builder.release.target_commitish ?? masterBranch);
+			string head_commit = GitRevParse("HEAD");
+
+			if (target_commit == head_commit)
 			{
-				case CheckResult.Passed:
-					Logger.WriteLine("Branch is " + masterBranch);
-					break;
-				case CheckResult.Ignored:
-					UpdateCommitish();
-					return true;
-				case CheckResult.Failed:
-					return false;
-				default:
-					throw new Exception("Bad case: " + result);
+				Logger.WriteLine("Target commit approved");
+				return true;
 			}
 
-			return true;
+			if (GitStatus().Contains("On branch " + masterBranch))
+			{
+				DialogResult changeTargetToMaster = MessageBox.Show("On branch " + masterBranch + " but commit target is " + target_commit + ".\nChange commit target to master?", PromptCaption, MessageBoxButtons.YesNoCancel);
+				Logger.WriteLine("Change commit to master" + " - " + changeTargetToMaster);
+				switch (changeTargetToMaster)
+				{
+					case DialogResult.Yes:
+						string head = LocalHead();
+						Logger.WriteLine("Setting target to commit to \"" + head + '"');
+						_builder.release.target_commitish = head;
+						return true;
+					case DialogResult.No:
+						Logger.WriteLine(IncorrectCommitTarget);
+						return true;
+					case DialogResult.Cancel:
+						return false;
+					default:
+						throw new Exception("Bad case: " + changeTargetToMaster);
+				}
+			}
+
+			DialogResult preReleaseFromOther = MessageBox.Show("Not on " + masterBranch + " branch.\nCreate a pre-release from the current branch?", PromptCaption, MessageBoxButtons.YesNoCancel);
+			Logger.WriteLine("Create pre-release" + " - " + preReleaseFromOther);
+			switch (preReleaseFromOther)
+			{
+				case DialogResult.Yes:
+					string head = LocalHead();
+					Logger.WriteLine("Setting target to commit to \"" + head + '"');
+					_builder.release.prerelease = true;
+					_builder.release.target_commitish = head;
+					return true;
+				case DialogResult.No:
+					Logger.WriteLine(IncorrectCommitTarget);
+					return true;
+				case DialogResult.Cancel:
+					return false;
+				default:
+					throw new Exception("Bad case: " + preReleaseFromOther);
+			}
 		}
 
 		private CheckResult Check(Func<bool> test, string failMessage)
@@ -116,7 +151,7 @@ namespace Rynchodon.PluginLoader
 			if (test.Invoke())
 				return CheckResult.Passed;
 
-			DialogResult result = MessageBox.Show(failMessage, "Git: not ready", MessageBoxButtons.AbortRetryIgnore);
+			DialogResult result = MessageBox.Show(failMessage, PromptCaption, MessageBoxButtons.AbortRetryIgnore);
 			Logger.WriteLine(failMessage + " - " + result);
 			switch (result)
 			{
@@ -132,9 +167,10 @@ namespace Rynchodon.PluginLoader
 		}
 
 		/// <summary>
-		/// Get the target commit from the head of the current branch.
+		/// Get the commit hash of local head.
 		/// </summary>
-		private void UpdateCommitish()
+		/// <returns>The commit hash of local head.</returns>
+		private string LocalHead()
 		{
 			string headPath = PathExtensions.Combine(_repoDirectory, ".git", "HEAD");
 			string head;
@@ -149,23 +185,26 @@ namespace Rynchodon.PluginLoader
 					head = reader.ReadLine();
 			}
 
-			Logger.WriteLine("Setting target to commit to \"" + head + '"');
-			_builder.release.target_commitish = head;
+			return head;
 		}
 
-		private string GetMasterBranch()
+		private string RunGitCommand(string command)
 		{
-			Process gitBranch = new Process();
-			gitBranch.StartInfo.FileName = _pathToGit;
-			gitBranch.StartInfo.RedirectStandardOutput = true;
-			gitBranch.StartInfo.UseShellExecute = false;
+			Process git = new Process();
+			git.StartInfo.FileName = _pathToGit;
+			git.StartInfo.RedirectStandardOutput = true;
+			git.StartInfo.UseShellExecute = false;
+			git.StartInfo.Arguments = "-C \"" + _repoDirectory + "\" " + command;
+			git.Start();
 
-			PluginName name = new PluginName(_builder.author, _builder.repository);
-			gitBranch.StartInfo.Arguments = "-C \"" + _repoDirectory + "\" ls-remote";
-			gitBranch.Start();
+			string output = git.StandardOutput.ReadToEnd();
+			git.WaitForExit();
+			return output;
+		}
 
-			string output = gitBranch.StandardOutput.ReadToEnd();
-			gitBranch.WaitForExit();
+		private string GitMasterBranch()
+		{
+			string output = RunGitCommand("ls-remote");
 
 			string[] newline = new string[] { Environment.NewLine, "\n", "\r" };
 			string[] references = output.Split(newline, StringSplitOptions.RemoveEmptyEntries);
@@ -199,22 +238,18 @@ namespace Rynchodon.PluginLoader
 			throw new Exception("failed to identify master branch");
 		}
 
-		private string GetStatus(bool shortSwitch = false)
+		private string GitRevParse(string s)
 		{
-			Process gitStatus = new Process();
-			gitStatus.StartInfo.FileName = _pathToGit;
-			gitStatus.StartInfo.RedirectStandardOutput = true;
-			gitStatus.StartInfo.UseShellExecute = false;
+			return RunGitCommand("rev-parse " + s);
+		}
 
-			string args = "-C \"" + _repoDirectory + "\" status";
+		private string GitStatus(bool shortSwitch = false)
+		{
+			string args = "status";
 			if (shortSwitch)
 				args += " -s";
-			gitStatus.StartInfo.Arguments = args;
-			gitStatus.Start();
 
-			string output = gitStatus.StandardOutput.ReadToEnd();
-			gitStatus.WaitForExit();
-			return output;
+			return RunGitCommand(args);
 		}
 
 	}
