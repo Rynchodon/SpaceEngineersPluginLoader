@@ -160,16 +160,41 @@ namespace Rynchodon.PluginLoader
 			gitBranch.StartInfo.RedirectStandardOutput = true;
 			gitBranch.StartInfo.UseShellExecute = false;
 
-			gitBranch.StartInfo.Arguments = "-C \"" + _repoDirectory + "\" branch --list";
+			PluginName name = new PluginName(_builder.author, _builder.repository);
+			gitBranch.StartInfo.Arguments = "-C \"" + _repoDirectory + "\" ls-remote";
 			gitBranch.Start();
 
 			string output = gitBranch.StandardOutput.ReadToEnd();
 			gitBranch.WaitForExit();
 
-			string[] branches = output.Split(new char[] { '\n', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-			foreach (string branch in branches)
-				if (branch[0] == '*')
-					return branch.Substring(2);
+			string[] newline = new string[] { Environment.NewLine, "\n", "\r" };
+			string[] references = output.Split(newline, StringSplitOptions.RemoveEmptyEntries);
+			char[] space = new char[] { ' ', '\t' };
+
+			// grab HEAD commit
+			string headCommit = null;
+			foreach (string reference in references)
+				if (reference.Contains("HEAD"))
+					headCommit = reference.Split(space, StringSplitOptions.RemoveEmptyEntries)[0];
+
+			if (headCommit == null)
+				throw new Exception("Failed to get HEAD");
+
+			Logger.WriteLine("HEAD commit: \'" + headCommit + '"');
+
+			// find matching commit
+			foreach (string reference in references)
+				if (reference.StartsWith(headCommit))
+				{
+					string refHeadMaster = reference.Split(space, StringSplitOptions.RemoveEmptyEntries)[1];
+					const string refHead = "refs/heads/";
+					if (refHeadMaster.StartsWith(refHead))
+					{
+						string defaultBranchName = refHeadMaster.Substring(refHead.Length);
+						Logger.WriteLine("Default branch name: \"" + defaultBranchName + '"');
+						return defaultBranchName;
+					}
+				}
 
 			throw new Exception("failed to identify master branch");
 		}
