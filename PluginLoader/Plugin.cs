@@ -13,6 +13,8 @@ namespace Rynchodon.PluginLoader
 	internal sealed class Plugin
 	{
 
+		[DataMember]
+		public string assetFileName;
 		/// <summary>Directory for plugin's files.</summary>
 		[DataMember]
 		public string directory;
@@ -120,11 +122,12 @@ namespace Rynchodon.PluginLoader
 		{
 			_files[Manifest.fileName] = null;
 			string manifestPath = PathExtensions.Combine(directory, Manifest.fileName);
-			Serialization.WriteJson(manifestPath, new Manifest(_files.Keys.ToArray(), _files.Values.ToArray(), requiredPlugins), true);
+			Serialization.WriteJson(manifestPath, new Manifest(assetFileName, _files.Keys.ToArray(), _files.Values.ToArray(), requiredPlugins), true);
 		}
 
 		public void Zip(string filePath)
 		{
+			assetFileName = Path.GetFileName(filePath);
 			CreateManifest();
 			using (FileStream zipFile = new FileStream(filePath, FileMode.CreateNew))
 			using (ZipArchive archive = new ZipArchive(zipFile, ZipArchiveMode.Create))
@@ -145,6 +148,7 @@ namespace Rynchodon.PluginLoader
 				return true;
 			}
 			Manifest manifest; Serialization.ReadJson(manifestPath, out manifest);
+			assetFileName = manifest.assetFileName;
 			requiredPlugins = manifest.requiredPlugins;
 
 			if (manifest.files == null || manifest.files.Length == 0)
@@ -266,17 +270,20 @@ namespace Rynchodon.PluginLoader
 			public const string fileName = "Manifest.json";
 
 			[DataMember]
+			public string assetFileName;
+			[DataMember]
 			public string[] files;
 			[DataMember]
 			public string[][] fileRequirements;
 			[DataMember]
 			public PluginName[] requiredPlugins;
 
-			public Manifest(string[] files, string[][] fileRequirements, PluginName[] requiredPlugins)
+			public Manifest(string assetFileName, string[] files, string[][] fileRequirements, PluginName[] requiredPlugins)
 			{
 				if (files.Length != fileRequirements.Length)
 					throw new ArgumentException("length of files does not match length of fileRequirements");
 
+				this.assetFileName = assetFileName;
 				this.fileRequirements = fileRequirements;
 				this.files = files;
 				this.requiredPlugins = requiredPlugins;

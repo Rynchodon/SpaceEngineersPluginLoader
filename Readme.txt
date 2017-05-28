@@ -24,7 +24,7 @@ Plugins are defined in the grid portion at the top:
 		Magnifying Glass: Checking GitHub to see if the plugin can be located. The plugin's configuration will be saved.
 		Warning Symbol: Either you are not connected to the internet or no repository exists for the plugin; check your spelling. The plugin's configuration will be saved.
 		X: The Author or Repository field is empty. The plugin's configuration cannot be saved.
-		Blank: Author and Repository have not been filled in. The plugin's configuration cannot be saved.
+		Blank: Author and Repository fields are empty. The plugin's configuration cannot be saved.
 	Delete: Remove a plugin from the list.
 
 Buttons:

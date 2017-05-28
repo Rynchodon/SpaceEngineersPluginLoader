@@ -352,8 +352,32 @@ namespace Rynchodon.PluginLoader
 
 			Directory.CreateDirectory(plugin.directory);
 
+			string targetAssetName = plugin.assetFileName;
+			if (targetAssetName != null)
+			{
+				bool found = false;
+				foreach (Release.Asset asset in mostRecent.assets)
+				{
+					if (asset.name == targetAssetName)
+					{
+						Logger.WriteLine("Target asset: " + targetAssetName);
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					targetAssetName = null;
+			}
+
 			foreach (Release.Asset asset in mostRecent.assets)
 			{
+				// If an asset file name has been specified and it exists, only download that asset. Otherwise, download all assets.
+				if (targetAssetName != null && asset.name != targetAssetName)
+				{
+					Logger.WriteLine("Not downloading: " + asset.name);
+					continue;
+				}
+
 				Logger.WriteLine("Downloading asset: " + asset.name);
 				HttpWebRequest request = WebRequest.CreateHttp(asset.browser_download_url);
 				request.Accept = "application/octet-stream";
@@ -377,13 +401,22 @@ namespace Rynchodon.PluginLoader
 								Directory.CreateDirectory(Path.GetDirectoryName(entryDestination));
 
 								if (File.Exists(entryDestination))
+									Logger.WriteLine("WARNING: File exists: " + entry.FullName + ", it will not be extracted from " + asset.name);
+								else
 								{
-									Logger.WriteLine("ERROR: File exists: " + entryDestination);
-									return false;
+									try
+									{
+										entry.ExtractToFile(entryDestination);
+										Logger.WriteLine("Unpacked entry: " + entry.FullName);
+									}
+									catch (InvalidDataException ide)
+									{
+										Logger.WriteLine(ide.Message);
+										Logger.WriteLine("Failed to unpack: " + entry.FullName);
+										continue;
+									}
+									plugin.AddFile(entryDestination);
 								}
-
-								entry.ExtractToFile(entryDestination);
-								plugin.AddFile(entryDestination);
 							}
 					}
 					finally
@@ -394,14 +427,13 @@ namespace Rynchodon.PluginLoader
 				else
 				{
 					if (File.Exists(assetDestination))
+						Logger.WriteLine("WARNING: File exists: " + asset.name + ", it will not be downloaded");
+					else
 					{
-						Logger.WriteLine("ERROR: File exists: " + assetDestination);
-						return false;
+						using (FileStream file = new FileStream(assetDestination, FileMode.CreateNew))
+							responseStream.CopyTo(file);
+						plugin.AddFile(assetDestination);
 					}
-
-					using (FileStream file = new FileStream(assetDestination, FileMode.CreateNew))
-						responseStream.CopyTo(file);
-					plugin.AddFile(assetDestination);
 				}
 
 				responseStream.Dispose();
@@ -409,7 +441,10 @@ namespace Rynchodon.PluginLoader
 			}
 
 			if (!plugin.LoadManifest())
+			{
+				Logger.WriteLine("Failed to load manifest");
 				return false;
+			}
 
 			plugin.version = mostRecent.version;
 			plugin.locallyCompiled = false;
