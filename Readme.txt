@@ -5,7 +5,8 @@ Space Engineers Plugin Loader is an application for downloading plugins for Spac
 
 Install
 =======
-Download SEPL_win64_installer.zip, open it, and run SetupSEPL.msi
+Download SEPL_installer_win64.zip from https://github.com/Rynchodon/SpaceEngineersPluginLoader/releases/latest.
+Open the archive and run SetupSEPL.msi.
 A shortcut to Plugin Manager will be placed on your desktop and in the start menu.
 
 

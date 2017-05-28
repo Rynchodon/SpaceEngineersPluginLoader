@@ -26,8 +26,6 @@ namespace Rynchodon.PluginLoader
 		/// </summary>
 		private readonly Dictionary<PluginName, Plugin> _downloaded = new Dictionary<PluginName, Plugin>();
 
-		private bool _needsSave = false;
-
 		public string PathToGit;
 
 		/// <summary>
@@ -41,7 +39,6 @@ namespace Rynchodon.PluginLoader
 				_gitHubConfig.Clear();
 				foreach (PluginConfig config in value)
 					AddConfig(config);
-				_needsSave = true;
 			}
 		}
 
@@ -77,13 +74,11 @@ namespace Rynchodon.PluginLoader
 				config.name.repository = "ARMS";
 			}
 			_gitHubConfig[config.name] = config;
-			_needsSave = true;
 		}
 
 		public void AddDownloaded(Plugin plugin)
 		{
 			_downloaded[plugin.name] = plugin;
-			_needsSave = true;
 		}
 
 		public bool TryGetDownloaded(PluginName name, out Plugin plugin)
@@ -164,7 +159,6 @@ namespace Rynchodon.PluginLoader
 				string gitExe = PathExtensions.Combine(location, "git.exe");
 				if (File.Exists(gitExe))
 				{
-					_needsSave = true;
 					Logger.WriteLine("git @ " + gitExe);
 					return gitExe;
 				}
@@ -174,10 +168,6 @@ namespace Rynchodon.PluginLoader
 
 		public void Save(bool force = false)
 		{
-			if (!_needsSave)
-				return;
-			_needsSave = false;
-
 			string filePath = GetFilePath();
 			Settings set;
 			set.Downloaded = _downloaded.Values.ToArray();

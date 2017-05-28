@@ -128,17 +128,14 @@ namespace Rynchodon.PluginLoader
 					Logger.WriteLine("Failed to connect to GitHub, cannot publish");
 					return;
 				}
-				if (releases.Length == 0 && builder.version.SeVersion > 0)
-					if (MessageBox.Show("This is your first release, make it compatible with older versions of SE?" + Environment.NewLine +
-						"If you intend to upload releases for older versions of SE choose No." + Environment.NewLine +
-						"This will not affect future releases"
-						, "SE Compatibility", MessageBoxButtons.YesNo) == DialogResult.Yes)
-					{
-						plugin.version.SeVersion = 0;
-						_instance._data.Save(true);
-					}
+				if (releases.Length == 0 && builder.version.SeVersion > 0 && MessageBox.Show("This is your first release, make it compatible with older versions of SE?" + Environment.NewLine +
+								"If you intend to upload releases for older versions of SE choose No." + Environment.NewLine +
+								"This will not affect future releases", "SE Compatibility", MessageBoxButtons.YesNo) == DialogResult.Yes)
+					plugin.version.SeVersion = 0;
 				client.Publish(plugin, builder);
 			}
+
+			_instance._data.Save();
 		}
 
 		/// <summary>
@@ -447,7 +444,6 @@ namespace Rynchodon.PluginLoader
 
 			_data.AddConfig(plugin.config);
 			_data.AddDownloaded(plugin);
-			_data.Save();
 
 			if (name.author == "Rynchodon" && name.repository == SeplRepo)
 				Robocopy();
