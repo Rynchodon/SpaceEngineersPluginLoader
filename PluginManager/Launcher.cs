@@ -13,7 +13,18 @@ namespace Rynchodon.PluginManager
 	/// </remarks>
 	internal static class Launcher
 	{
-		public static string PathBin64, PathDedicated64;
+
+		public static readonly string PathPluginLoader, PathBin64, PathDedicated64;
+
+		static Launcher()
+		{
+			string seplDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			string seDirectory = Path.GetDirectoryName(seplDirectory);
+
+			PathPluginLoader = Path.Combine(seplDirectory, "PluginLoader.dll");
+			PathBin64 = Path.Combine(seDirectory, "Bin64");
+			PathDedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
+		}
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -21,11 +32,6 @@ namespace Rynchodon.PluginManager
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			string seDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-
-			PathBin64 = Path.Combine(seDirectory, "Bin64");
-			PathDedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
-
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
 			if (args != null && args.Length != 0)

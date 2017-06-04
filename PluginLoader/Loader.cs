@@ -195,11 +195,8 @@ namespace Rynchodon.PluginLoader
 			_instance = this;
 			_directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-			if (!File.Exists(PathExtensions.Combine(_directory, "SpaceEngineers.exe")))
+			if (!File.Exists(PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64", "SpaceEngineers.exe")))
 				throw new Exception("Not in Space Engineers folder: " + _directory);
-
-			_directory = PathExtensions.Combine(Path.GetDirectoryName(_directory), SeplRepo);
-			Directory.CreateDirectory(_directory);
 
 			_data = new PluginData(_directory);
 
@@ -247,9 +244,8 @@ namespace Rynchodon.PluginLoader
 			Logger.WriteLine("starting robocopy");
 
 			string first = '"' + seplDownloadPath + "\" \"";
-			string bin64 = PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64");
 
-			string copyDll = first + bin64 + "\" " + Dll + " /COPY:DATSO /W:1 /xx";
+			string copyDll = first + _directory + "\" " + Dll + " /COPY:DATSO /W:1 /xx";
 			string copyExe = first + _directory + "\" " + Exe + " /COPY:DATSO /W:1 /xx";
 
 			Process robocopy = new Process();

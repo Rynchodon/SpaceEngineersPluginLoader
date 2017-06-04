@@ -10,16 +10,16 @@ namespace Rynchodon.PluginManager
 	internal static class DllInjector
 	{
 
-		const string dll = "PluginLoader.dll", processNameSE = "SpaceEngineers", processNameSED = "SpaceEngineersDedicated";
+		private const string processNameSE = "SpaceEngineers", processNameSED = "SpaceEngineersDedicated";
+		private static string dllName;
 
-		public static void Run(string bin64, string launchFrom)
+		public static void Run(string launchFrom)
 		{
 			Logger.WriteLine("loaded");
 
-			string dllPath = PathExtensions.Combine(bin64, dll);
-
-			if (!File.Exists(dllPath))
-				Logger.WriteLine("dll not found: " + dll);
+			dllName = Path.GetFileName(Launcher.PathPluginLoader);
+			if (!File.Exists(Launcher.PathPluginLoader))
+				Logger.WriteLine("dll not found: " + dllName);
 
 			string dedicatedLauncher = PathExtensions.Combine(launchFrom, "SpaceEngineersDedicated.exe");
 			bool isDedicatedServer = File.Exists(dedicatedLauncher);
@@ -86,7 +86,7 @@ namespace Rynchodon.PluginManager
 
 			process = WaitForGameStart(isDedicatedServer);
 			if (process != null)
-				Inject(process, dllPath);
+				Inject(process, Launcher.PathPluginLoader);
 		}
 
 		private static Process GetGameProcess(bool isDedicatedServer)
@@ -235,12 +235,12 @@ namespace Rynchodon.PluginManager
 					process.Refresh();
 					if (process.HasExited)
 					{
-						Logger.WriteLine("Game terminated before " + dll + " could be loaded");
+						Logger.WriteLine("Game terminated before " + dllName + " could be loaded");
 						return false;
 					}
 				}
 
-				Logger.WriteLine("Loaded " + dll);
+				Logger.WriteLine("Loaded " + dllName);
 			}
 			finally
 			{

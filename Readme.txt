@@ -16,6 +16,7 @@ Launch Plugin Manager.
 
 Plugins are defined in the grid portion at the top:
 	The blank row at the bottom is for adding new entries; it cannot be deleted and will not be saved.
+	
 	Enabled: The box must be ticked for the plugin to be loaded into Space Engineers.
 	Author: The GitHub author of the plugin, this may be different from the name the author uses on steam.
 	Repository: The name of the plugin on GitHub.
@@ -44,7 +45,7 @@ In steam library, right click on Space Engineers
 Left click on properties
 Left click on "SET LAUNCH OPTIONS..."
 If the text box is not empty, leave a space
-Add "-plugin PluginLoader.dll" without the quotes
+Add "-plugin ..\SpaceEngineersPluginLoader\PluginLoader.dll", without the quotes
 Left click "OK"
 Left click "CLOSE"
 

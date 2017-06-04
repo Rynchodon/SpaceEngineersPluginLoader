@@ -95,14 +95,12 @@
 				<Component Id="PluginManagerComponent" Win64="yes">
 					<File Source="$(var.PluginManager.TargetPath)" />
 				</Component>
+				<Component Id="PluginLoaderComponent" Win64="yes">
+					<File Source="$(var.PluginLoader.TargetPath)" />
+				</Component>
 				<Component Id="RemoveDirUninstallComponent" Win64="yes">
 					<RegistryValue Root="HKCU" Key="Software\Rynchodon\[ProductName]" Name="DirRemoveUninstall" Type="string" Value="[SpaceEngineersPluginLoader]" KeyPath="yes" />
 					<util:RemoveFolderEx Property="DIR_REMOVE_UNINSTALL" On="uninstall" />
-				</Component>
-			</Directory>
-			<Directory Id ="Bin64" Name="Bin64">
-				<Component Id="PluginLoaderComponent" Win64="yes">
-					<File Source="$(var.PluginLoader.TargetPath)" />
 				</Component>
 			</Directory>
 		</DirectoryRef>
