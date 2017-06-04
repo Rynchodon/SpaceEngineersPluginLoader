@@ -75,6 +75,8 @@ namespace Rynchodon.PluginLoader
 
 		public void AddFile(string filePath, string[] requires = null)
 		{
+			(new FileInfo(filePath)).IsReadOnly = false;
+
 			string relativeFilePath = GetRelativeFilePath(filePath);
 			if (requires == null)
 			{

@@ -16,12 +16,12 @@ namespace Rynchodon.PluginLoader
 
 		static Logger()
 		{
-			string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			//string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-			while (!directory.EndsWith("SpaceEngineers"))
-				directory = Path.GetDirectoryName(directory);
+			//while (!directory.EndsWith("SpaceEngineers"))
+			//	directory = Path.GetDirectoryName(directory);
 
-			string logDirectory = Path.Combine(directory, Loader.SeplRepo, "logs");
+			string logDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "logs");
 			Directory.CreateDirectory(logDirectory);
 
 			string logFileName = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss-fff") + ".log";

@@ -41,6 +41,11 @@ namespace Rynchodon.PluginLoader
 			return path;
 		}
 
+		public static bool IsInPath(string target, string path)
+		{
+			return Path.GetFullPath(target).StartsWith(path);
+		}
+
 		public static IEnumerable<string> PathsToRoot(string path)
 		{
 			if (!Path.IsPathRooted(path))

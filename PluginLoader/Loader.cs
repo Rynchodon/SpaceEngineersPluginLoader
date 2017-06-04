@@ -195,7 +195,8 @@ namespace Rynchodon.PluginLoader
 			_instance = this;
 			_directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-			if (!File.Exists(PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64", "SpaceEngineers.exe")))
+			string bin64 = PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64");
+			if (!File.Exists(PathExtensions.Combine(bin64, "SpaceEngineers.exe")) && !File.Exists(PathExtensions.Combine(bin64, "SpaceEngineersDedicated.exe")))
 				throw new Exception("Not in Space Engineers folder: " + _directory);
 
 			_data = new PluginData(_directory);
@@ -220,8 +221,10 @@ namespace Rynchodon.PluginLoader
 		/// </summary>
 		void IDisposable.Dispose()
 		{
-			foreach (IPlugin plugin in _plugins)
-				plugin.Dispose();
+			IPlugin[] plugins = _plugins;
+			if (plugins != null)
+				foreach (IPlugin plugin in plugins)
+					plugin.Dispose();
 			Robocopy();
 		}
 
@@ -240,6 +243,10 @@ namespace Rynchodon.PluginLoader
 			string license = PathExtensions.Combine(seplDownloadPath, "License.rtf");
 			if (File.Exists(license))
 				File.Copy(license, PathExtensions.Combine(_directory, "License.rtf"), true);
+
+			string readme = PathExtensions.Combine(seplDownloadPath, "Readme.txt");
+			if (File.Exists(readme))
+				File.Copy(readme, PathExtensions.Combine(_directory, "Readme.txt"), true);
 
 			Logger.WriteLine("starting robocopy");
 
@@ -266,7 +273,10 @@ namespace Rynchodon.PluginLoader
 			_initialized = true;
 
 			if (!_task.IsComplete && !Game.IsDedicated)
+			{
+				Logger.WriteLine("Opening download screen");
 				MyGuiSandbox.AddScreen(new DownloadProgress(_task, _downProgress));
+			}
 		}
 
 		/// <summary>

@@ -57,12 +57,15 @@ namespace Rynchodon.PluginManager
 		{
 			if (directory == null)
 			{
+				Console.Error.WriteLine("null directory");
 				assembly = null;
 				return false;
 			}
 
 			AssemblyName name = new AssemblyName(args.Name);
 			string assemblyPath = Path.Combine(directory, name.Name);
+
+			Console.WriteLine("Looking for " + args.Name + " in " + directory);
 
 			string dll = assemblyPath + ".dll";
 			if (File.Exists(dll))
@@ -79,11 +82,14 @@ namespace Rynchodon.PluginManager
 				}
 			}
 
-			if (args.Name == AssemblyName.GetAssemblyName(assemblyPath).FullName)
+			string fullName = AssemblyName.GetAssemblyName(assemblyPath).FullName;
+			if (args.Name == fullName)
 			{
 				assembly = Assembly.LoadFrom(assemblyPath);
 				return true;
 			}
+
+			Console.WriteLine("Rejecting partial match: " + fullName);
 
 			assembly = null;
 			return false;

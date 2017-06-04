@@ -386,6 +386,11 @@ namespace Rynchodon.PluginLoader
 				WebResponse response = request.GetResponse();
 				Stream responseStream = response.GetResponseStream();
 				string assetDestination = PathExtensions.Combine(plugin.directory, asset.name);
+				if (!PathExtensions.IsInPath(assetDestination, plugin.directory))
+				{
+					Logger.WriteLine("Access denied: " + assetDestination);
+					continue;
+				}
 
 				if (asset.name.EndsWith(".zip"))
 					try
@@ -398,6 +403,12 @@ namespace Rynchodon.PluginLoader
 							foreach (ZipArchiveEntry entry in archive.Entries)
 							{
 								string entryDestination = PathExtensions.Combine(plugin.directory, entry.FullName);
+								if (!PathExtensions.IsInPath(entryDestination, plugin.directory))
+								{
+									Logger.WriteLine("Access denied: " + entryDestination);
+									continue;
+								}
+
 								Directory.CreateDirectory(Path.GetDirectoryName(entryDestination));
 
 								if (File.Exists(entryDestination))
@@ -413,6 +424,8 @@ namespace Rynchodon.PluginLoader
 									{
 										Logger.WriteLine(ide.Message);
 										Logger.WriteLine("Failed to unpack: " + entry.FullName);
+										if (File.Exists(entryDestination))
+											File.Delete(entryDestination);
 										continue;
 									}
 									plugin.AddFile(entryDestination);

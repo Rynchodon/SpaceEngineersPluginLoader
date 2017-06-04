@@ -38,7 +38,10 @@ namespace Rynchodon.PluginManager
 				if (isDedicatedServer)
 				{
 					Logger.WriteLine("Starting dedicated server");
-					Process.Start(dedicatedLauncher);
+					Process dsLaunch = new Process();
+					dsLaunch.StartInfo.FileName = dedicatedLauncher;
+					dsLaunch.StartInfo.WorkingDirectory = launchFrom;
+					dsLaunch.Start();
 				}
 				else
 				{
