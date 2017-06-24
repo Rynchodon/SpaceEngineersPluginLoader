@@ -82,17 +82,21 @@ namespace Rynchodon.PluginManager
 				}
 			}
 
-			string fullName = AssemblyName.GetAssemblyName(assemblyPath).FullName;
-			if (args.Name == fullName)
-			{
-				assembly = Assembly.LoadFrom(assemblyPath);
-				return true;
-			}
+			assembly = Assembly.LoadFrom(assemblyPath);
+			return true;
 
-			Console.WriteLine("Rejecting partial match: " + fullName);
+			// for checking version:
+			//string fullName = AssemblyName.GetAssemblyName(assemblyPath).FullName;
+			//if (args.Name == fullName)
+			//{
+			//	assembly = Assembly.LoadFrom(assemblyPath);
+			//	return true;
+			//}
 
-			assembly = null;
-			return false;
+			//Console.WriteLine("Rejecting partial match: " + fullName);
+
+			//assembly = null;
+			//return false;
 		}
 
 	}
