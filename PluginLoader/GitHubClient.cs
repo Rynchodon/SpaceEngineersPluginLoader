@@ -251,12 +251,7 @@ namespace Rynchodon.PluginLoader
 			if (!HasOAuthToken)
 				throw new ArgumentException("Need oAuthToken");
 
-			PluginBuilder.Release releaseBuilder = pluginBuilder.release;
-			CreateRelease release = new CreateRelease(plugin.version, true);
-			release.target_commitish = releaseBuilder.target_commitish;
-			release.name = releaseBuilder.name;
-			release.body = releaseBuilder.GetBody();
-			release.prerelease = releaseBuilder.prerelease;
+			CreateRelease release = new CreateRelease(plugin.version, pluginBuilder.release);
 
 			string zipFileName;
 			if (pluginBuilder.zipFileName != null)

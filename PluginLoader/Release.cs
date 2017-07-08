@@ -53,11 +53,15 @@ namespace Rynchodon.PluginLoader
 
 		public CreateRelease() { }
 
-		public CreateRelease(Version version, bool draft)
+		public CreateRelease(Version version, PluginBuilder.Release builder)
 		{
+			this.target_commitish = builder.target_commitish;
+			this.name = builder.name;
+			this.body = builder.GetBody();
+			this.draft = builder.draft;
+			this.prerelease = builder.prerelease;
 			this.version = version;
 			this.tag_name = version.ToString();
-			this.draft = draft;
 		}
 
 		/// <summary>
