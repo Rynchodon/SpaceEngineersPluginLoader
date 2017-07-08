@@ -195,9 +195,15 @@ namespace Rynchodon.PluginLoader
 			_instance = this;
 			_directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-			string bin64 = PathExtensions.Combine(Path.GetDirectoryName(_directory), "Bin64");
-			if (!File.Exists(PathExtensions.Combine(bin64, "SpaceEngineers.exe")) && !File.Exists(PathExtensions.Combine(bin64, "SpaceEngineersDedicated.exe")))
-				throw new Exception("Not in Space Engineers folder: " + _directory);
+			string seDirectory = Path.GetDirectoryName(_directory);
+			if (!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineers.exe")) &&
+				!File.Exists(PathExtensions.Combine(seDirectory, "DedicatedServer64", "SpaceEngineersDedicated.exe")) &&
+				!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineersDedicated.exe"))) // when DS is locally compiled
+			{
+				string msg = "Not in Space Engineers folder: " + _directory;
+				Logger.WriteLine(msg);
+				throw new Exception(msg);
+			}
 
 			_data = new PluginData(_directory);
 
