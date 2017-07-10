@@ -8,6 +8,7 @@ Install
 Download SEPL_installer_win64.zip from https://github.com/Rynchodon/SpaceEngineersPluginLoader/releases/latest.
 Open the archive and run SetupSEPL.msi.
 A shortcut to Plugin Manager will be placed on your desktop and in the start menu.
+If using Torch (https://github.com/TorchAPI/Torch), download SEPL_TorchPlugin.zip and extract it to Torch's Plugins folder. SEPL will still need to be configured but launching Torch will also launch SEPL.
 
 
 Config

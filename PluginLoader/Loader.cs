@@ -128,7 +128,7 @@ namespace Rynchodon.PluginLoader
 					Logger.WriteLine("Failed to connect to GitHub, cannot publish");
 					return;
 				}
-				if (releases.Length == 0 && builder.version.SeVersion > 0 && MessageBox.Show("This is your first release, make it compatible with older versions of SE?" + Environment.NewLine +
+				if (releases.Length == 0 && builder.version.SeVersion > 0 && MessageBox.Show("This is your first release, mark it compatible with older versions of SE?" + Environment.NewLine +
 								"If you intend to upload releases for older versions of SE choose No." + Environment.NewLine +
 								"This will not affect future releases", "SE Compatibility", MessageBoxButtons.YesNo) == DialogResult.Yes)
 					plugin.version.SeVersion = 0;
@@ -198,7 +198,8 @@ namespace Rynchodon.PluginLoader
 			string seDirectory = Path.GetDirectoryName(_directory);
 			if (!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineers.exe")) &&
 				!File.Exists(PathExtensions.Combine(seDirectory, "DedicatedServer64", "SpaceEngineersDedicated.exe")) &&
-				!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineersDedicated.exe"))) // when DS is locally compiled
+				!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineersDedicated.exe")) && // when DS is locally compiled
+				!File.Exists(PathExtensions.Combine(seDirectory, "..", "Torch.Server.exe"))) // torch Plugins Folder
 			{
 				string msg = "Not in Space Engineers folder: " + _directory;
 				Logger.WriteLine(msg);
@@ -225,7 +226,7 @@ namespace Rynchodon.PluginLoader
 		/// <summary>
 		/// Update PluginLoader.dll and PluginManager.exe from download folder.
 		/// </summary>
-		void IDisposable.Dispose()
+		public void Dispose()
 		{
 			IPlugin[] plugins = _plugins;
 			if (plugins != null)
@@ -288,7 +289,7 @@ namespace Rynchodon.PluginLoader
 		/// <summary>
 		/// Load plugins, if updating has finished.
 		/// </summary>
-		void IPlugin.Update()
+		public void Update()
 		{
 			if (_instance != this)
 				return;
@@ -323,23 +324,34 @@ namespace Rynchodon.PluginLoader
 			_downProgress.Current = 0;
 
 			Logger.WriteLine("Updating plugins");
-			HashSet<PluginName> updated = new HashSet<PluginName>();
-			UpdatePlugin(_data.EnabledGitHubConfig(), updated);
-		}
 
-		private void UpdatePlugin(IEnumerable<PluginConfig> pluginConfig, HashSet<PluginName> updated)
-		{
-			_downProgress.Total += pluginConfig.Count();
-			foreach (PluginConfig config in pluginConfig)
-				if (updated.Add(config.name))
+			Dictionary<PluginName, PluginConfig> configured = new Dictionary<PluginName, PluginConfig>();
+			foreach (PluginConfig config in _data.EnabledGitHubConfig())
+				configured.Add(config.name, config);
+			HashSet<PluginName> dependencies = new HashSet<PluginName>();
+
+			_downProgress.Total += configured.Count;
+
+			for (int loopCount = 0; loopCount < 100; ++loopCount)
+			{
+				foreach (KeyValuePair<PluginName, PluginConfig> pair in configured)
 				{
 					++_downProgress.Current;
-					Plugin current = UpdatePlugin(config);
+					Plugin current = UpdatePlugin(pair.Value);
 					if (current.requiredPlugins != null)
-						UpdatePlugin(current.requiredPlugins.Select(name => new PluginConfig(name, false)), updated);
+						foreach (PluginName req in current.requiredPlugins)
+							if (!configured.ContainsKey(req) && dependencies.Add(req))
+								++_downProgress.Total;
 				}
-				else
-					--_downProgress.Total;
+
+				if (dependencies.Count == 0)
+					return;
+				foreach (PluginName name in dependencies)
+					configured.Add(name, new PluginConfig(name, false));
+				dependencies.Clear();
+			}
+
+			throw new Exception("Exceeded max dependency depth");
 		}
 
 		private Plugin UpdatePlugin(PluginConfig config)
