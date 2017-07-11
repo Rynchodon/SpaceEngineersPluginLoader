@@ -56,7 +56,7 @@ namespace Rynchodon.Torch
 
 		public override void Dispose()
 		{
-			_loader.Dispose();
+			_loader?.Dispose();
 			_loader = null;
 		}
 
