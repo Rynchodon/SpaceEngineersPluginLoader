@@ -415,9 +415,9 @@ namespace Rynchodon.PluginLoader
 										entry.ExtractToFile(entryDestination);
 										Logger.WriteLine("Unpacked entry: " + entry.FullName);
 									}
-									catch (InvalidDataException ide)
+									catch (Exception ex)
 									{
-										Logger.WriteLine(ide.Message);
+										Logger.WriteLine(ex.Message);
 										Logger.WriteLine("Failed to unpack: " + entry.FullName);
 										if (File.Exists(entryDestination))
 											File.Delete(entryDestination);
