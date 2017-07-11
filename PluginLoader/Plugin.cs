@@ -171,8 +171,8 @@ namespace Rynchodon.PluginLoader
 
 			foreach (string o in orphans)
 			{
-				Logger.WriteLine("ERROR: " + o + " is not listed on manifest for " + name.fullName);
-				error = true;
+				Logger.WriteLine(o + " is not listed on manifest for " + name.fullName + ", deleting");
+				File.Delete(GetFullPath(o));
 			}
 
 			if (error)
