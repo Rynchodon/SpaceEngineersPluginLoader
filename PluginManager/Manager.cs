@@ -275,7 +275,10 @@ namespace Rynchodon.PluginManager
 		private void Launch_Click(object sender, EventArgs e)
 		{
 			Close();
-			DllInjector.Run(Launcher.PathBin64);
+			if (Launcher.PathBin64 == null)
+				MessageBox.Show("Could not locate " + Path.Combine(Launcher.SeFolder, Launcher.SeBinFolder));
+			else
+				DllInjector.Run(Launcher.PathBin64);
 		}
 
 		private void buttonSave_Click(object sender, EventArgs e)
@@ -299,7 +302,10 @@ namespace Rynchodon.PluginManager
 		private void buttonLaunchDs_Click(object sender, EventArgs e)
 		{
 			Close();
-			DllInjector.Run(Launcher.PathDedicated64);
+			if (Launcher.PathDedicated64 == null)
+				MessageBox.Show("Could not locate "+ Path.Combine(Launcher.SeFolder, Launcher.SeDedicatedFolder));
+			else
+				DllInjector.Run(Launcher.PathDedicated64);
 		}
 
 		#endregion Event Handlers

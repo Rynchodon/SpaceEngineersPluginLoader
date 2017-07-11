@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -14,16 +15,38 @@ namespace Rynchodon.PluginManager
 	internal static class Launcher
 	{
 
+		public const string SeFolder = "SpaceEngineers", SeBinFolder = "Bin64", SeDedicatedFolder = "DedicatedServer64",
+			SeClientExe = "SpaceEngineers.exe", SeDedicatedExe = "SpaceEngineersDedicated.exe";
 		public static readonly string PathPluginLoader, PathBin64, PathDedicated64;
 
 		static Launcher()
 		{
 			string seplDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			string seDirectory = Path.GetDirectoryName(seplDirectory);
-
 			PathPluginLoader = Path.Combine(seplDirectory, "PluginLoader.dll");
-			PathBin64 = Path.Combine(seDirectory, "Bin64");
-			PathDedicated64 = Path.Combine(seDirectory, "DedicatedServer64");
+
+			string seDirectory = Path.GetDirectoryName(seplDirectory);
+			PathBin64 = Path.Combine(seDirectory, SeBinFolder);
+			PathDedicated64 = Path.Combine(seDirectory, SeDedicatedFolder);
+
+			if (!File.Exists(Path.Combine(PathBin64, SeClientExe)))
+				PathBin64 = null;
+			if (!File.Exists(Path.Combine(PathDedicated64, SeDedicatedExe)))
+				PathDedicated64 = null;
+
+			if (PathBin64 != null || PathDedicated64 != null)
+				return;
+
+			string installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
+			if (installLocation == null)
+				installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
+			if (installLocation == null)
+			{
+				MessageBox.Show(SeFolder + " could not be located");
+				return;
+			}
+
+			PathBin64 = Path.Combine(installLocation, SeBinFolder);
+			PathDedicated64 = Path.Combine(installLocation, SeDedicatedFolder);
 		}
 
 		/// <summary>

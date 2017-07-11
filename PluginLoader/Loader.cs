@@ -194,18 +194,6 @@ namespace Rynchodon.PluginLoader
 
 			_instance = this;
 			_directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-			string seDirectory = Path.GetDirectoryName(_directory);
-			if (!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineers.exe")) &&
-				!File.Exists(PathExtensions.Combine(seDirectory, "DedicatedServer64", "SpaceEngineersDedicated.exe")) &&
-				!File.Exists(PathExtensions.Combine(seDirectory, "Bin64", "SpaceEngineersDedicated.exe")) && // when DS is locally compiled
-				!File.Exists(PathExtensions.Combine(seDirectory, "..", "Torch.Server.exe"))) // torch Plugins Folder
-			{
-				string msg = "Not in Space Engineers folder: " + _directory;
-				Logger.WriteLine(msg);
-				throw new Exception(msg);
-			}
-
 			_data = new PluginData(_directory);
 
 			Logger.WriteLine(SeplShort + " version: " + new Version(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location), 0));
