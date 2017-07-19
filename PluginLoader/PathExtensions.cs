@@ -39,7 +39,8 @@ namespace Rynchodon.PluginLoader
 					continue;
 				}
 
-				char lastChar = path.Length != 0 ? path[path.Length - 1] : ' ', firstChar;
+				char lastChar = path.Length != 0 ? path[path.Length - 1] : Path.DirectorySeparatorChar;
+				char firstChar;
 				if (lastChar == Path.DirectorySeparatorChar || lastChar == Path.AltDirectorySeparatorChar || (firstChar = pp[0]) == Path.DirectorySeparatorChar || firstChar == Path.AltDirectorySeparatorChar)
 					path += pp;
 				else
