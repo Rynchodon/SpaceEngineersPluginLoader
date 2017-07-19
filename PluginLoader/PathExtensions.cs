@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Rynchodon.PluginLoader
@@ -22,18 +23,24 @@ namespace Rynchodon.PluginLoader
 
 			int index = 0;
 			string path = pathParts[index];
-			if (path == null)
-				throw new ArgumentNullException("pathParts[" + index + "]");
+			if (string.IsNullOrWhiteSpace(path))
+			{
+				Debug.Fail("NullOrWhiteSpace @ " + index);
+				path = string.Empty;
+			}
 
 			for (index = 1; index < pathParts.Length; ++index)
 			{
 				string pp = pathParts[index];
 
-				if (pp == null)
-					throw new ArgumentNullException("pathParts[" + index + "]");
+				if (string.IsNullOrWhiteSpace(pp))
+				{
+					Debug.Fail("NullOrWhiteSpace @ " + index);
+					continue;
+				}
 
-				char lastChar, firstChar;
-				if ((lastChar = path[path.Length - 1]) == Path.DirectorySeparatorChar || lastChar == Path.AltDirectorySeparatorChar || (firstChar = pp[0]) == Path.DirectorySeparatorChar || firstChar == Path.AltDirectorySeparatorChar)
+				char lastChar = path.Length != 0 ? path[path.Length - 1] : ' ', firstChar;
+				if (lastChar == Path.DirectorySeparatorChar || lastChar == Path.AltDirectorySeparatorChar || (firstChar = pp[0]) == Path.DirectorySeparatorChar || firstChar == Path.AltDirectorySeparatorChar)
 					path += pp;
 				else
 					path += Path.DirectorySeparatorChar + pp;

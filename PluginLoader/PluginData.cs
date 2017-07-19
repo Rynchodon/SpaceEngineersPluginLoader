@@ -138,21 +138,31 @@ namespace Rynchodon.PluginLoader
 
 			PathToGit = set.PathToGit;
 
-			if (PathToGit == null)
+			if (string.IsNullOrWhiteSpace(PathToGit) || !File.Exists(PathToGit))
 				PathToGit = SearchForGit();
 		}
 
 		private string SearchForGit()
 		{
-			List<string> searchLocations = new List<string>();
+			HashSet<string> searchLocations = new HashSet<string>();
 
 			foreach (string envPath in Environment.GetEnvironmentVariable("PATH").Split(';'))
-				searchLocations.Add(envPath);
+				if (string.IsNullOrWhiteSpace(envPath))
+					Logger.WriteLine("empty string in PATH");
+				else
+					searchLocations.Add(envPath);
 
-			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "Git", "cmd"));
-			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "Git", "bin"));
-			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramW6432"), "Git", "cmd"));
-			searchLocations.Add(PathExtensions.Combine(Environment.GetEnvironmentVariable("ProgramW6432"), "Git", "bin"));
+			foreach (string envVar in new string[] { "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432" })
+			{
+				string path = Environment.GetEnvironmentVariable(envVar);
+				if (string.IsNullOrWhiteSpace(path))
+					Logger.WriteLine("No environment variable: " + envVar);
+				else
+				{
+					searchLocations.Add(PathExtensions.Combine(path, "Git", "bin"));
+					searchLocations.Add(PathExtensions.Combine(path, "Git", "cmd"));
+				}
+			}
 
 			foreach (string location in searchLocations)
 			{
@@ -166,7 +176,7 @@ namespace Rynchodon.PluginLoader
 			return null;
 		}
 
-		public void Save(bool force = false)
+		public void Save()
 		{
 			string filePath = GetFilePath();
 			Settings set;
