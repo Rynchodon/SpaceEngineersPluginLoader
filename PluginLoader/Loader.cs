@@ -293,17 +293,28 @@ namespace Rynchodon.PluginLoader
 
 		private void CheckTask()
 		{
-			if (_task.IsComplete)
+			if (!_task.IsComplete)
+				return;
+
+			if (_task.Exceptions != null && _task.Exceptions.Length != 0)
+			{
+				Trace.Fail("SEPL: Error(s) occurred, cannot load plugins. See log for details.");
+				Logger.WriteLine("Error(s) occurred, cannot load plugins");
+				foreach (Exception ex in _task.Exceptions)
+					Logger.WriteLine(ex.ToString());
+				return;
+			}
+			else
 			{
 				Logger.WriteLine("Finished task, loading plugins");
 				_plugins = LoadPlugin();
 				foreach (IPlugin plugin in _plugins)
 					plugin.Init(MySandboxGame.Static);
-
-				_data = default(PluginData);
-				_task = default(ParallelTasks.Task);
-				_downProgress = null;
 			}
+
+			_data = default(PluginData);
+			_task = default(ParallelTasks.Task);
+			_downProgress = null;
 		}
 
 		private void UpdatePlugin()
