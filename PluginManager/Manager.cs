@@ -174,10 +174,17 @@ namespace Rynchodon.PluginManager
 				PluginConfig.Rows[rowIndex].Cells[ColumnDelete.Index].Value = Properties.Resources.garbage;
 		}
 
-		private void SavePluginConfig()
+		private void SavePluginConfig(List<PluginConfig> pluginConfig = null)
 		{
 			_needsSave = false;
-			List<PluginConfig> pluginConfigs = new List<PluginConfig>();
+			_loader.GitHubConfig = pluginConfig ?? BuildPluginConfig();
+			if (CheckGit())
+				_loader.PathToGit = textBoxPathToGit.Text;
+		}
+
+		private List<PluginConfig> BuildPluginConfig()
+		{
+			List<PluginConfig> pluginConfig = new List<PluginConfig>();
 
 			foreach (DataGridViewRow row in PluginConfig.Rows)
 			{
@@ -190,12 +197,10 @@ namespace Rynchodon.PluginManager
 				if (string.IsNullOrWhiteSpace(info.name.author) || string.IsNullOrWhiteSpace(info.name.repository))
 					continue;
 
-				pluginConfigs.Add(info);
+				pluginConfig.Add(info);
 			}
 
-			_loader.GitHubConfig = pluginConfigs;
-			if (CheckGit())
-				_loader.PathToGit = textBoxPathToGit.Text;
+			return pluginConfig;
 		}
 
 		private void WriteLine(string line)
@@ -220,17 +225,35 @@ namespace Rynchodon.PluginManager
 		{
 			if (_needsSave)
 			{
-				DialogResult choice = MessageBox.Show("Save changes?", "Save", MessageBoxButtons.YesNo);
-				switch (choice)
+				List<PluginConfig> pluginConfig = BuildPluginConfig();
+				if (ConfigChanged(pluginConfig) || _loader.PathToGit != textBoxPathToGit.Text)
 				{
-					case DialogResult.Yes:
-						SavePluginConfig();
-						break;
-					case DialogResult.No:
-						break;
+					DialogResult choice = MessageBox.Show("Save changes?", "Save", MessageBoxButtons.YesNo);
+					switch (choice)
+					{
+						case DialogResult.Yes:
+							SavePluginConfig(pluginConfig);
+							break;
+						case DialogResult.No:
+							break;
+					}
 				}
 			}
 			base.OnClosed(e);
+		}
+
+		private bool ConfigChanged(List<PluginConfig> pluginConfig)
+		{
+			ICollection<PluginConfig> currentConfig = _loader.GitHubConfig;
+			if (currentConfig.Count != pluginConfig.Count)
+				return true;
+
+			int index = 0;
+			foreach (PluginConfig config in _loader.GitHubConfig)
+				if (!config.Equals(pluginConfig[index++]))
+					return true;
+
+			return false;
 		}
 
 		#region Event Handlers

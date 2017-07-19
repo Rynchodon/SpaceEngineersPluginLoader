@@ -1,11 +1,10 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace Rynchodon.PluginLoader
 {
 	[DataContract]
-	public struct PluginConfig
+	public struct PluginConfig : IEquatable<PluginConfig>
 	{
 		[DataMember]
 		public PluginName name;
@@ -19,6 +18,11 @@ namespace Rynchodon.PluginLoader
 			this.name = name;
 			this.downloadPrerelease = downloadPrerelease;
 			this.enabled = enabled;
+		}
+
+		public bool Equals(PluginConfig other)
+		{
+			return name.Equals(other.name) && downloadPrerelease == other.downloadPrerelease && enabled == other.enabled;
 		}
 	}
 
