@@ -186,8 +186,8 @@ namespace Rynchodon.PluginLoader
 		/// <summary>
 		/// Creates an instance of <see cref="Loader"/> and, optionally, starts the updating process.
 		/// </summary>
-		/// <param name="start">Iff true, start the updating process.</param>
-		public Loader(bool start)
+		/// <param name="update">Iff true, start the updating process.</param>
+		public Loader(bool update)
 		{
 			if (_instance != null)
 				return;
@@ -198,17 +198,25 @@ namespace Rynchodon.PluginLoader
 
 			Logger.WriteLine(SeplShort + " version: " + new Version(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location), 0));
 
-			if (start)
-				_task = ParallelTasks.Parallel.StartBackground(Run);
-			else
-				_task = ParallelTasks.Parallel.StartBackground(_data.Load);
+			_task = ParallelTasks.Parallel.StartBackground(() => Run(update));
 		}
 
-		private void Run()
+		private void Run(bool update)
 		{
-			_data.Load();
-			UpdatePlugin();
-			_data.Save();
+			try
+			{
+				_data.Load();
+				if (update)
+				{
+					UpdatePlugin();
+					_data.Save();
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.ToString(), SeplRepo);
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -298,11 +306,9 @@ namespace Rynchodon.PluginLoader
 
 			if (_task.Exceptions != null && _task.Exceptions.Length != 0)
 			{
-				Trace.Fail("SEPL: Error(s) occurred, cannot load plugins. See log for details.");
-				Logger.WriteLine("Error(s) occurred, cannot load plugins");
+				Logger.WriteLine("Exception(s) occurred, cannot load plugins");
 				foreach (Exception ex in _task.Exceptions)
 					Logger.WriteLine(ex.ToString());
-				return;
 			}
 			else
 			{

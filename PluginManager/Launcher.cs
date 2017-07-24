@@ -15,38 +15,52 @@ namespace Rynchodon.PluginManager
 	internal static class Launcher
 	{
 
+		public const string SeplName = "SpaceEngineersPluginLoader";
 		public const string SeFolder = "SpaceEngineers", SeBinFolder = "Bin64", SeDedicatedFolder = "DedicatedServer64",
 			SeClientExe = "SpaceEngineers.exe", SeDedicatedExe = "SpaceEngineersDedicated.exe";
 		public static readonly string PathPluginLoader, PathBin64, PathDedicated64;
 
 		static Launcher()
 		{
-			string seplDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			PathPluginLoader = Path.Combine(seplDirectory, "PluginLoader.dll");
-
-			string seDirectory = Path.GetDirectoryName(seplDirectory);
-			PathBin64 = Path.Combine(seDirectory, SeBinFolder);
-			PathDedicated64 = Path.Combine(seDirectory, SeDedicatedFolder);
-
-			if (!File.Exists(Path.Combine(PathBin64, SeClientExe)))
-				PathBin64 = null;
-			if (!File.Exists(Path.Combine(PathDedicated64, SeDedicatedExe)))
-				PathDedicated64 = null;
-
-			if (PathBin64 != null || PathDedicated64 != null)
-				return;
-
-			string installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
-			if (installLocation == null)
-				installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
-			if (installLocation == null)
+			try
 			{
-				MessageBox.Show(SeFolder + " could not be located");
-				return;
-			}
+				string seplDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+				PathPluginLoader = Path.Combine(seplDirectory, "PluginLoader.dll");
 
-			PathBin64 = Path.Combine(installLocation, SeBinFolder);
-			PathDedicated64 = Path.Combine(installLocation, SeDedicatedFolder);
+				string seDirectory = Path.GetDirectoryName(seplDirectory);
+				PathBin64 = Path.Combine(seDirectory, SeBinFolder);
+				PathDedicated64 = Path.Combine(seDirectory, SeDedicatedFolder);
+
+				if (!File.Exists(Path.Combine(PathBin64, SeClientExe)))
+					PathBin64 = null;
+				if (!File.Exists(Path.Combine(PathDedicated64, SeDedicatedExe)))
+					PathDedicated64 = null;
+
+				if (PathBin64 != null || PathDedicated64 != null)
+				{
+					Console.WriteLine("Located " + SeFolder + " relative to assembly directory");
+					return;
+				}
+
+				string installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
+				if (installLocation == null)
+					installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
+				if (installLocation == null)
+				{
+					MessageBox.Show(SeFolder + " could not be located");
+					return;
+				}
+
+				Console.WriteLine("Using " + SeFolder + " path from registry");
+
+				PathBin64 = Path.Combine(installLocation, SeBinFolder);
+				PathDedicated64 = Path.Combine(installLocation, SeDedicatedFolder);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.ToString(), SeplName);
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -55,17 +69,25 @@ namespace Rynchodon.PluginManager
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-
-			if (args != null && args.Length != 0)
+			try
 			{
-				LoadBuilder.Load(args);
-				return;
-			}
+				AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new Manager());
+				if (args != null && args.Length != 0)
+				{
+					LoadBuilder.Load(args);
+					return;
+				}
+
+				Application.EnableVisualStyles();
+				Application.SetCompatibleTextRenderingDefault(false);
+				Application.Run(new Manager());
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.ToString(), SeplName);
+				throw;
+			}
 		}
 
 		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -73,6 +95,7 @@ namespace Rynchodon.PluginManager
 			Assembly assembly;
 			if (TryResolveAssembly(PathBin64, args, out assembly) || TryResolveAssembly(PathDedicated64, args, out assembly))
 				return assembly;
+			Console.WriteLine("Could not locate " + args.Name);
 			return null;
 		}
 
@@ -80,15 +103,14 @@ namespace Rynchodon.PluginManager
 		{
 			if (directory == null)
 			{
-				Console.Error.WriteLine("null directory");
+				// if SE is locally compiled or SEPL is installed in torch directory, this is normal
+				Console.WriteLine("null directory");
 				assembly = null;
 				return false;
 			}
 
 			AssemblyName name = new AssemblyName(args.Name);
 			string assemblyPath = Path.Combine(directory, name.Name);
-
-			Console.WriteLine("Looking for " + args.Name + " in " + directory);
 
 			string dll = assemblyPath + ".dll";
 			if (File.Exists(dll))
@@ -105,6 +127,7 @@ namespace Rynchodon.PluginManager
 				}
 			}
 
+			Console.WriteLine("located assembly " + name.Name + " in " + directory);
 			assembly = Assembly.LoadFrom(assemblyPath);
 			return true;
 
