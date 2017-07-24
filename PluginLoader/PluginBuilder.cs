@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Rynchodon.PluginLoader
 {
@@ -19,6 +20,7 @@ namespace Rynchodon.PluginLoader
 			public string targetFolder;
 			/// <summary>Names of files in this plugin that must be loaded before this one.</summary>
 			[DataMember]
+			[Obsolete("references are resolved automatically")]
 			public string[] requires;
 
 			public File(string source, string targetFolder, string[] requires)

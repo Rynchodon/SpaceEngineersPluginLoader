@@ -218,6 +218,37 @@ namespace Rynchodon.PluginLoader
 				return false;
 			}
 
+			Assembly assembly = LoadDllAutoResolve(fullPath);
+
+			if (assembly == null)
+			{
+				LogFailedToLoadFile(fullPath, "could not load assembly");
+				return false;
+			}
+
+			if (!loaded.Add(relativePath))
+				throw new Exception(fullPath + " already loaded");
+
+			Logger.WriteLine("Loading plugins from " + fullPath);
+
+			foreach (Type t in assembly.ExportedTypes)
+				if (typeof(IPlugin).IsAssignableFrom(t))
+				{
+					try { pluginInterface.Add((IPlugin)Activator.CreateInstance(t)); }
+					catch (Exception ex)
+					{
+						LogFailedToLoadFile(fullPath, "exception while creating instance of " + t.FullName + ":\n" + ex);
+						return false;
+					}
+					Logger.WriteLine("Loaded \"" + t.FullName + '"');
+				}
+
+			return true;
+		}
+
+		[Obsolete]
+		private bool LoadRequiredFiles(string[] requiredFiles, ICollection<IPlugin> pluginInterface, HashSet<string> loaded, int depth, string fullPath)
+		{
 			if (requiredFiles != null)
 				foreach (string fileName in requiredFiles)
 				{
@@ -233,31 +264,46 @@ namespace Rynchodon.PluginLoader
 						return false;
 					}
 				}
-
-			if (!loaded.Add(relativePath))
-				throw new Exception(fullPath + " already loaded");
-
-			Logger.WriteLine("Loading plugins from " + fullPath);
-
-			Assembly assembly = Assembly.LoadFrom(fullPath);
-			if (assembly == null)
-			{
-				LogFailedToLoadFile(fullPath, "could not load assembly");
-				return false;
-			}
-			foreach (Type t in assembly.ExportedTypes)
-				if (typeof(IPlugin).IsAssignableFrom(t))
-				{
-					try { pluginInterface.Add((IPlugin)Activator.CreateInstance(t)); }
-					catch (Exception ex)
-					{
-						LogFailedToLoadFile(fullPath, "exception while creating instance of " + t.FullName + ":\n" + ex);
-						return false;
-					}
-					Logger.WriteLine("Loaded \"" + t.FullName + '"');
-				}
-
 			return true;
+		}
+
+		/// <summary>
+		/// Try to load an assembly, resolving references from the plugin's directory.
+		/// </summary>
+		private Assembly LoadDllAutoResolve(string fullPath)
+		{
+			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+			try { return TryLoadAssembly(fullPath); }
+			finally { AppDomain.CurrentDomain.AssemblyResolve -= AssemblyResolve; }
+		}
+
+		private Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			string name = new AssemblyName(args.Name).Name;
+			string[] assemblyPath = Directory.GetFiles(directory, name + ".dll", SearchOption.AllDirectories);
+
+			switch (assemblyPath.Length)
+			{
+				case 0:
+					Logger.WriteLine("No assembly named " + name + " could be located");
+					return null;
+				case 1:
+					Logger.WriteLine("Located assembly " + name + " in " + directory);
+					return TryLoadAssembly(assemblyPath[0]);
+				default:
+					Logger.WriteLine("Multiple files match " + name + ":\n" + string.Join("\n\t", assemblyPath));
+					return null;
+			}
+		}
+
+		private Assembly TryLoadAssembly(string fullPath)
+		{
+			try { return Assembly.LoadFrom(fullPath); }
+			catch (Exception ex)
+			{
+				Logger.WriteLine(ex.ToString());
+				return null;
+			}
 		}
 
 		private void LogFailedToLoadFile(string fullPath, string reason)
