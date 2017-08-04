@@ -277,8 +277,18 @@ namespace Rynchodon.PluginLoader
 
 			if (!_task.IsComplete && !Game.IsDedicated)
 			{
+
+				// bug in Torch:
+				DownloadProgress progress;
+				try { progress = new DownloadProgress(_task, _downProgress); }
+				catch (Exception ex)
+				{
+					Logger.WriteLine("Game is not dedicated but download screen cannot be created. Exception:\n" + ex);
+					return;
+				}
+
 				Logger.WriteLine("Opening download screen");
-				MyGuiSandbox.AddScreen(new DownloadProgress(_task, _downProgress));
+				MyGuiSandbox.AddScreen(progress);
 			}
 		}
 
