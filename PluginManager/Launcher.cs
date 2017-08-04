@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -20,10 +21,14 @@ namespace Rynchodon.PluginManager
 			SeClientExe = "SpaceEngineers.exe", SeDedicatedExe = "SpaceEngineersDedicated.exe";
 		public static readonly string PathPluginLoader, PathBin64, PathDedicated64;
 
+		private static List<string> _consoleOut = new List<string>();
+
 		static Launcher()
 		{
 			try
 			{
+				EraseCrashLog();
+
 				string seplDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				PathPluginLoader = Path.Combine(seplDirectory, "PluginLoader.dll");
 
@@ -31,14 +36,12 @@ namespace Rynchodon.PluginManager
 				PathBin64 = Path.Combine(seDirectory, SeBinFolder);
 				PathDedicated64 = Path.Combine(seDirectory, SeDedicatedFolder);
 
-				if (!File.Exists(Path.Combine(PathBin64, SeClientExe)))
-					PathBin64 = null;
-				if (!File.Exists(Path.Combine(PathDedicated64, SeDedicatedExe)))
-					PathDedicated64 = null;
+				CheckForBin(ref PathBin64, false);
+				CheckForBin(ref PathDedicated64, false);
 
 				if (PathBin64 != null || PathDedicated64 != null)
 				{
-					Console.WriteLine("Located " + SeFolder + " relative to assembly directory");
+					WriteLine("Using path relative to assembly path for SE binaries");
 					return;
 				}
 
@@ -46,21 +49,43 @@ namespace Rynchodon.PluginManager
 				if (installLocation == null)
 					installLocation = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", "InstallLocation", null);
 				if (installLocation == null)
-				{
-					MessageBox.Show(SeFolder + " could not be located");
-					return;
-				}
+					throw new Exception(SeFolder + " could not be located");
 
-				Console.WriteLine("Using " + SeFolder + " path from registry");
+				WriteLine("Using " + SeFolder + " path from registry");
 
 				PathBin64 = Path.Combine(installLocation, SeBinFolder);
 				PathDedicated64 = Path.Combine(installLocation, SeDedicatedFolder);
+
+				CheckForBin(ref PathBin64, true);
+				CheckForBin(ref PathDedicated64, true);
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.ToString(), SeplName);
+				CrashDump(ex);
 				throw;
 			}
+			finally
+			{
+				if (PathBin64 != null)
+					WriteLine("Path to " + SeBinFolder + ": " + PathBin64);
+				if (PathDedicated64 != null)
+					WriteLine("Path to " + SeDedicatedFolder + ": " + PathDedicated64);
+			}
+		}
+
+		private static void CheckForBin(ref string path, bool fromRegistry)
+		{
+			if (Directory.Exists(path))
+			{
+				if (File.Exists(Path.Combine(path, SeClientExe)) || File.Exists(Path.Combine(path, SeDedicatedExe))) // SE might be locally compiled
+					return;
+
+				WriteLine((fromRegistry ? "ERROR: " : "WARNING: ") + path + " does not contain " + SeClientExe + " or " + SeDedicatedExe);
+			}
+			else if (fromRegistry)
+				WriteLine("ERROR: " + path + " does not exist");
+
+			path = null;
 		}
 
 		/// <summary>
@@ -85,7 +110,7 @@ namespace Rynchodon.PluginManager
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.ToString(), SeplName);
+				CrashDump(ex);
 				throw;
 			}
 		}
@@ -95,7 +120,7 @@ namespace Rynchodon.PluginManager
 			Assembly assembly;
 			if (TryResolveAssembly(PathBin64, args, out assembly) || TryResolveAssembly(PathDedicated64, args, out assembly))
 				return assembly;
-			Console.WriteLine("Could not locate " + args.Name);
+			WriteLine("Could not locate " + new AssemblyName(args.Name).Name);
 			return null;
 		}
 
@@ -104,7 +129,7 @@ namespace Rynchodon.PluginManager
 			if (directory == null)
 			{
 				// if SE is locally compiled or SEPL is installed in torch directory, this is normal
-				Console.WriteLine("null directory");
+				WriteLine("null directory");
 				assembly = null;
 				return false;
 			}
@@ -127,7 +152,7 @@ namespace Rynchodon.PluginManager
 				}
 			}
 
-			Console.WriteLine("located assembly " + name.Name + " in " + directory);
+			WriteLine("located assembly " + name.Name + " in " + directory);
 			assembly = Assembly.LoadFrom(assemblyPath);
 			return true;
 
@@ -139,10 +164,41 @@ namespace Rynchodon.PluginManager
 			//	return true;
 			//}
 
-			//Console.WriteLine("Rejecting partial match: " + fullName);
+			//WriteLine("Rejecting partial match: " + fullName);
 
 			//assembly = null;
 			//return false;
+		}
+
+		private static void WriteLine(string line)
+		{
+			Console.WriteLine(line);
+			_consoleOut.Add(line);
+		}
+
+		private static string GetCrashLogPath()
+		{
+			return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "crash.log");
+		}
+
+		private static void EraseCrashLog()
+		{
+			string crashLog = GetCrashLogPath();
+			if (File.Exists(crashLog))
+				File.Delete(crashLog);
+		}
+
+		private static void CrashDump(Exception ex)
+		{
+			string crashLog = GetCrashLogPath();
+			using (StreamWriter writer = new StreamWriter(crashLog))
+			{
+				foreach (string line in _consoleOut)
+					writer.WriteLine(line);
+				writer.WriteLine(ex.ToString());
+			}
+
+			MessageBox.Show(SeplName + " crashed, see\n" + crashLog, SeplName);
 		}
 
 	}
