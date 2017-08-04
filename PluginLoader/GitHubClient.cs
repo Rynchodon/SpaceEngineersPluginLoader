@@ -266,7 +266,8 @@ namespace Rynchodon.PluginLoader
 			try
 			{
 				plugin.Zip(zipFilePath);
-				PublishRelease(release, zipFilePath);
+				if (PublishRelease(release, zipFilePath))
+					MessageBox.Show("Release posted");
 			}
 			finally
 			{
